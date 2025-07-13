@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Modos de Expiración{% endblock %}
+
+{% block page_title %}Gestor de Modos de Expiración{% endblock %}
+
+{% block content %}
+<div class="card bg-white rounded-lg p-6 mb-8">
+    <h2 class="text-lg font-semibold mb-4 text-blue-600">➕ Crear Nuevo Modo de Expiración Personalizado</h2>
+    <form action="{{ url_for('main.create_expiration_mode') }}" method="POST" class="space-y-4">
+        <div>
+            <label for="nombre_visible" class="block text-sm font-medium text-gray-700">Nombre Visible</label>
+            <input type="text" name="nombre_visible" id="nombre_visible" placeholder="Ej: Eliminar al día siguiente" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+        </div>
+        <div>
+            <label for="script_on_login" class="block text-sm font-medium text-gray-700">Script RouterOS (on-login)</label>
+            <textarea name="script_on_login" id="script_on_login" rows="6" placeholder=":log info &quot;Usuario conectado&quot;;" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 font-mono text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required></textarea>
+            <p class="mt-1 text-xs text-gray-500">Este script se ejecutará en el MikroTik cuando un usuario con este modo de expiración inicie sesión. Debe ser un comando RouterOS válido.</p>
+        </div>
+        <div class="pt-2">
+            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                <i class="fas fa-plus-circle mr-2"></i>Crear Modo
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="card bg-white rounded-lg overflow-hidden mb-8">
+    <div class="p-6">
+        <h2 class="text-lg font-semibold mb-4">Modos de Expiración Predefinidos</h2>
+        <div class="overflow-x-auto mb-6">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clave Interna</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre Visible</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Script (Parcial)</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for key, mode in predefined_modes.items() %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">{{ key }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ mode.nombre_visible }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500 font-mono">{{ mode.script_on_login[:50] }}...</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                Predefinido
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <h2 class="text-lg font-semibold mb-4 mt-8">Modos de Expiración Personalizados</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clave Interna</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre Visible</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Script (Parcial)</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for key, mode in custom_modes.items() %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">{{ key }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ mode.nombre_visible }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500 font-mono">{{ mode.script_on_login[:50] }}...</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="{{ url_for('main.edit_expiration_mode_page', mode_key=key) }}" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200">
+                                <i class="fas fa-pencil-alt mr-2"></i>Editar
+                            </a>
+                            <a href="{{ url_for('main.delete_expiration_mode', mode_key=key) }}" onclick="return confirm('¿Estás seguro de que quieres ELIMINAR este modo de expiración personalizado?')" class="ml-2 inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200">
+                                <i class="fas fa-trash-alt mr-2"></i>Eliminar
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">
+                            No se han definido modos de expiración personalizados.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imprimir Vouchers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Estilos generales para la vista en pantalla */
+        body {
+            background-color: #f3f4f6; /* bg-gray-100 */
+            margin: 0;
+            padding: 20px;
+        }
+        .vouchers-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 columnas */
+            gap: 0.1in; /* Pequeño espacio entre vouchers */
+            justify-items: center;
+            align-items: center;
+        }
+        .voucher-card {
+            box-sizing: border-box; /* Asegura que padding y border no aumenten el tamaño */
+            border: 1px solid #d1d5db; /* border-gray-300 */
+            border-radius: 0.375rem; /* rounded-lg */
+            text-align: center;
+            font-size: 0.75rem; /* text-xs */
+            line-height: 1; /* leading-tight */
+            width: 2in; /* Ancho fijo para el voucher */
+            height: 1in; /* Alto fijo para el voucher (40 por hoja) */
+            display: flex; /* Usar flexbox para el layout horizontal */
+            align-items: center; /* Centrar verticalmente los elementos internos */
+            justify-content: space-between;
+            overflow: hidden; /* Ocultar cualquier contenido que se desborde */
+            padding: 0.1rem; /* Ajuste de padding para que quepa todo */
+        }
+        .voucher-card .logo-area {
+            flex-shrink: 0; /* No permitir que el logo se encoja */
+            width: 0.5in; /* Ancho fijo para el área del logo */
+            height: 0.8in; /* Altura fija para el área del logo */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .voucher-card .logo-area img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; /* Asegura que el logo se ajuste sin distorsión */
+        }
+        .voucher-card .content-area {
+            flex-grow: 1; /* Permite que el contenido ocupe el espacio disponible */
+            padding-left: 0.1rem; /* Pequeño espacio entre logo y contenido */
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Centrar verticalmente el contenido dentro de .content-area */
+            font-size: 0.65rem; /* Fuente un poco más pequeña para que quepa */
+        }
+        .voucher-card .content-area p {
+            line-height: 1.1; /* Ajustar el interlineado */
+            margin-top: 0.05rem;
+            margin-bottom: 0.05rem;
+        }
+        .voucher-card .content-area p:first-child {
+            margin-top: 0;
+        }
+
+        /* Estilos específicos para impresión */
+        @media print {
+            body {
+                background-color: white;
+                margin: 0;
+                padding: 0;
+                /* Eliminar headers y footers por defecto del navegador */
+                -webkit-print-color-adjust: exact; /* Para imprimir colores de fondo */
+                print-color-adjust: exact;
+            }
+            .no-print {
+                display: none !important; /* Oculta el botón de imprimir y mensaje */
+            }
+            .vouchers-grid {
+                width: 8.5in; /* Ancho de una hoja estándar de carta/A4 */
+                /* Ajustar padding para que los 40 vouchers encajen bien */
+                padding: 0.25in 0.25in; /* Margen superior/inferior, y lateral */
+                box-sizing: border-box; /* Incluir padding en el ancho */
+            }
+            .voucher-card {
+                margin: 0; /* Eliminar márgenes entre vouchers para maximizar espacio */
+                page-break-inside: avoid; /* Evita que un voucher se corte entre páginas */
+                border: 0.5px solid #e5e7eb; /* Borde más fino para impresión */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print bg-gray-200 p-4 text-center">
+        <h1 class="text-xl font-bold mb-2">Vouchers Listos para Imprimir</h1>
+        <button onclick="window.print()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+            <i class="fas fa-print mr-2"></i> Imprimir Vouchers
+        </button>
+        <a href="{{ url_for('list_users') }}" class="ml-4 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i> Volver a Usuarios
+        </a>
+    </div>
+
+    <div class="vouchers-grid">
+        {% for voucher_html in rendered_vouchers_html %}
+            {{ voucher_html|safe }}
+        {% endfor %}
+    </div>
+</body>
+</html>

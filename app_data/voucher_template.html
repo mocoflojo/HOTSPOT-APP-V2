@@ -1,0 +1,24 @@
+<div class="voucher-card p-1 border border-gray-300 rounded-lg text-center text-xs break-all leading-tight" style="width: 2in; height: 1in; display: flex; align-items: center; justify-content: space-between; margin: 0.05in; vertical-align: top; overflow: hidden; page-break-inside: avoid;">
+    
+    <div class="logo-area" style="flex-shrink: 0; width: 0.5in; height: 0.8in; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+        {# La ruta del logo debe ser '/app_data/logo.png' #}
+        <img src="/app_data/logo.png" alt="Logo" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+    </div>
+
+    <div class="content-area flex-grow pl-1 text-left" style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
+        <p class="font-bold text-lg text-blue-700 leading-none" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${{ voucher.price }}</p>
+        
+        {% if voucher.mode == 'pin' %}
+            <p class="text-gray-800 leading-none mt-1">PIN: <span class="text-2xl font-extrabold text-green-600">{{ voucher.username }}</span></p>
+        {% else %}
+            <p class="text-gray-800 leading-none mt-1">Usuario: <span class="text-sm font-bold text-green-600">{{ voucher.username }}</span></p>
+            <p class="text-gray-800 leading-none">Pass: <span class="text-sm font-bold text-red-600">{{ voucher.password }}</span></p>
+        {% endif %}
+
+        {% if voucher.limit_uptime_formatted %}
+            <p class="text-gray-700 leading-none mt-1">Tiempo: <span class="font-semibold">{{ voucher.limit_uptime_formatted }}</span></p>
+        {% endif %}
+        <p class="text-gray-700 leading-none">Expiración: <span class="font-semibold">{{ voucher.expiration_mode_display }}</span></p>
+        <p class="text-gray-700 leading-none mt-1" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Login: <span class="font-semibold">{{ hotspot_dns }}</span></p>
+    </div>
+</div>

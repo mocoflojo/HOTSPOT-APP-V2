@@ -1,0 +1,6 @@
+{# _voucher_render_helper.html #}
+{# Este archivo no contiene HTML visible directamente, solo una macro para renderizar HTML pasado como string #}
+
+{% macro render_html_string(html_string, context) %}
+    {{ html_string|safe }}
+{% endmacro %}

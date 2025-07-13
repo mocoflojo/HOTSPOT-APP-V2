@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Perfil{% endblock %}
+
+{% block page_title %}Editando Perfil: <span class="text-blue-600">{{ profile_data.name }}</span>{% endblock %}
+
+{% block content %}
+<div class="card bg-white rounded-lg p-6 mb-8">
+    <form action="{{ url_for('main.update_profile', profile_id=profile_data.id) }}" method="POST" class="space-y-4">
+        <div>
+            <label for="name" class="block text-sm font-medium text-gray-700">Nombre del Perfil</label>
+            <input type="text" name="name" id="name" value="{{ profile_data.name }}" class="mt-1 block w-full bg-gray-100 border-gray-300 rounded-md shadow-sm" readonly>
+            <p class="mt-1 text-xs text-gray-500">El nombre del perfil no se puede cambiar.</p>
+        </div>
+        <div>
+            <label for="shared_users" class="block text-sm font-medium text-gray-700">Usuarios Compartidos</label>
+            <input type="number" name="shared_users" id="shared_users" value="{{ profile_data['shared-users'] }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+        </div>
+        <div>
+            <label for="rate_limit" class="block text-sm font-medium text-gray-700">Límite de Velocidad (Subida/Bajada)</label>
+            <input type="text" name="rate_limit" id="rate_limit" value="{{ profile_data['rate-limit'] or '' }}" placeholder="Ej: 512k/1M" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+        </div>
+        <div>
+            <label for="expiration_mode" class="block text-sm font-medium text-gray-700">Modo de Expiración</label>
+            <select name="expiration_mode" id="expiration_mode" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                {% for key, value in expiration_scripts.items() %}
+                    <option value="{{ key }}" {% if key == selected_expiration_key %}selected{% endif %}>{{ value.nombre_visible }}</option>
+                {% endfor %}
+            </select>
+            <p class="mt-1 text-xs text-gray-500">Selecciona un nuevo modo. El script actual se reemplazará.</p>
+        </div>
+        <div>
+            <label for="price" class="block text-sm font-medium text-gray-700">Precio (Ej: 1.50)</label>
+            <input type="number" step="0.01" name="price" id="price" value="{{ profile_data.price }}" placeholder="0.00" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+        </div>
+        <div class="pt-2 flex space-x-4">
+            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                <i class="fas fa-save mr-2"></i>Guardar Cambios
+            </button>
+            <a href="{{ url_for('main.profiles_page') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

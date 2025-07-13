@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Modo de Expiración{% endblock %}
+
+{% block page_title %}Editando Modo de Expiración: <span class="text-blue-600">{{ mode_data.nombre_visible }}</span>{% endblock %}
+
+{% block content %}
+<div class="card bg-white rounded-lg p-6 mb-8">
+    {% if is_predefined %}
+    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
+        <p class="font-bold">Modo Predefinido</p>
+        <p>Este es un modo de expiración predefinido y no puede ser editado ni eliminado.</p>
+    </div>
+    {% endif %}
+    
+    <form action="{{ url_for('main.update_expiration_mode', mode_key=mode_key) }}" method="POST" class="space-y-4">
+        <div>
+            <label for="nombre_visible" class="block text-sm font-medium text-gray-700">Nombre Visible</label>
+            <input type="text" name="nombre_visible" id="nombre_visible" value="{{ mode_data.nombre_visible }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 {% if is_predefined %}bg-gray-100{% endif %}" {% if is_predefined %}readonly{% endif %} required>
+        </div>
+        <div>
+            <label for="script_on_login" class="block text-sm font-medium text-gray-700">Script RouterOS (on-login)</label>
+            <textarea name="script_on_login" id="script_on_login" rows="10" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 font-mono text-sm {% if is_predefined %}bg-gray-100{% endif %}" {% if is_predefined %}readonly{% endif %} required>{{ mode_data.script_on_login }}</textarea>
+            <p class="mt-1 text-xs text-gray-500">Este script se ejecutará en el MikroTik cuando un usuario con este modo de expiración inicie sesión.</p>
+        </div>
+        <div class="pt-2 flex space-x-4">
+            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 {% if is_predefined %}opacity-50 cursor-not-allowed{% endif %}" {% if is_predefined %}disabled{% endif %}>
+                <i class="fas fa-save mr-2"></i>Guardar Cambios
+            </button>
+            <a href="{{ url_for('main.expiration_modes_page') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

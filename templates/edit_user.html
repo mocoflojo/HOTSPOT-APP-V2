@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Usuario{% endblock %}
+
+{% block page_title %}Editando Usuario: <span class="text-blue-600">{{ user_data.name }}</span>{% endblock %}
+
+{% block content %}
+<div class="card bg-white rounded-lg p-6 mb-8">
+    <form action="{{ url_for('main.update_user', user_id=user_data.id) }}" method="POST" class="space-y-6">
+        <div>
+            <label for="username" class="block text-sm font-medium text-gray-700">Nombre de Usuario</label>
+            <input type="text" name="username" id="username" value="{{ user_data.name }}" class="mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md shadow-sm py-2 px-3" readonly>
+            <p class="mt-1 text-xs text-gray-500">El nombre de usuario no se puede cambiar.</p>
+        </div>
+
+        <div>
+            <label for="password" class="block text-sm font-medium text-gray-700">Nueva Contraseña</label>
+            <input type="text" name="password" id="password" placeholder="Dejar en blanco para no cambiar" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        </div>
+
+        <div>
+            <label for="profile" class="block text-sm font-medium text-gray-700">Perfil de Velocidad</label>
+            <select name="profile" id="profile" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+                {% for profile in profiles %}
+                    <option value="{{ profile.name }}" {% if profile.name == user_data.profile %}selected{% endif %}>{{ profile.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label for="limit_uptime" class="block text-sm font-medium text-gray-700">Límite de Tiempo (Ej: 30m, 1h, 1d)</label>
+            <input type="text" name="limit_uptime" id="limit_uptime" value="{{ user_data['limit-uptime'] or '' }}" placeholder="Dejar en blanco para no tener límite" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        </div>
+
+        <div>
+            <label for="comment" class="block text-sm font-medium text-gray-700">Comentario</label>
+            <input type="text" name="comment" id="comment" value="{{ user_data.comment or '' }}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        </div>
+
+        <div class="pt-4 flex items-center space-x-4">
+            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <i class="fas fa-save mr-2"></i>Guardar Cambios
+            </button>
+            <a href="{{ url_for('main.list_users') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

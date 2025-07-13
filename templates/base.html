@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mi Gestor WISP{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar { transition: all 0.3s ease; }
+        .content { transition: margin-left 0.3s ease; }
+        .card { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .card:hover { 
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen overflow-hidden">
+        <div class="sidebar bg-white text-gray-800 shadow-lg fixed h-full z-10 w-64" id="sidebar">
+            <div class="p-4 flex items-center border-b border-gray-200">
+                <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white"><i class="fas fa-wifi text-xl"></i></div>
+                <span class="logo-text ml-3 font-bold text-lg">Mi Gestor</span>
+            </div>
+            
+            {# Mostrar info de usuario y logout si está autenticado #}
+            {% if current_user.is_authenticated %}
+            <div class="p-4 border-b border-gray-200 text-center">
+                <p class="font-semibold text-gray-800">Bienvenido, {{ current_user.username }}</p>
+                <a href="{{ url_for('auth.logout') }}" class="mt-2 inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Cerrar Sesión
+                </a>
+            </div>
+            {% endif %}
+
+            <nav class="mt-6">
+                <div class="px-4">
+                    <div class="text-xs uppercase font-semibold text-gray-500 mb-4">Principal</div>
+                    
+                    {# Mostrar menú solo si el usuario está autenticado #}
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('main.dashboard') }}" class="nav-item flex items-center py-3 px-4 rounded-lg hover:bg-gray-100 mt-1 {% if active_page == 'dashboard' %}bg-blue-50 text-blue-600{% endif %}">
+                        <i class="fas fa-tachometer-alt"></i><span class="nav-text ml-3">Dashboard</span>
+                    </a>
+                    <a href="{{ url_for('main.list_users') }}" class="nav-item flex items-center py-3 px-4 rounded-lg hover:bg-gray-100 mt-1 {% if active_page == 'users' %}bg-blue-50 text-blue-600{% endif %}">
+                        <i class="fas fa-users"></i><span class="nav-text ml-3">Usuarios</span>
+                    </a>
+                    <a href="{{ url_for('main.generate_page') }}" class="nav-item flex items-center py-3 px-4 rounded-lg hover:bg-gray-100 mt-1 {% if active_page == 'generate' %}bg-blue-50 text-blue-600{% endif %}">
+                        <i class="fas fa-ticket-alt"></i><span class="nav-text ml-3">Generar Fichas</span>
+                    </a>
+                    <a href="{{ url_for('main.profiles_page') }}" class="nav-item flex items-center py-3 px-4 rounded-lg hover:bg-gray-100 mt-1 {% if active_page == 'profiles' %}bg-blue-50 text-blue-600{% endif %}">
+                        <i class="fas fa-sliders-h"></i><span class="nav-text ml-3">Perfiles</span>
+                    </a>
+                    <a href="{{ url_for('main.expiration_modes_page') }}" class="nav-item flex items-center py-3 px-4 rounded-lg hover:bg-gray-100 mt-1 {% if active_page == 'expiration_modes' %}bg-blue-50 text-blue-600{% endif %}">
+                        <i class="fas fa-clock"></i><span class="nav-text ml-3">Modos Expiración</span>
+                    </a>
+                    <a href="{{ url_for('main.voucher_template_editor') }}" class="nav-item flex items-center py-3 px-4 rounded-lg hover:bg-gray-100 mt-1 {% if active_page == 'template_editor' %}bg-blue-50 text-blue-600{% endif %}">
+                        <i class="fas fa-code"></i><span class="nav-text ml-3">Editor de Plantillas</span>
+                    </a>
+                    {% block extra_nav_items %}{% endblock %}
+                    {% else %}
+                    {# Si no está autenticado, y no es la página de login/setup, sugerir login #}
+                    {% if active_page != 'login' and active_page != 'setup_initial_user' %}
+                        <p class="text-sm text-gray-500 px-4 py-3">Inicia sesión para ver las opciones.</p>
+                        <a href="{{ url_for('auth.login') }}" class="nav-item flex items-center py-3 px-4 rounded-lg hover:bg-gray-100 mt-1 {% if active_page == 'login' %}bg-blue-50 text-blue-600{% endif %}">
+                            <i class="fas fa-sign-in-alt"></i><span class="nav-text ml-3">Iniciar Sesión</span>
+                        </a>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </nav>
+        </div>
+
+        <div class="content flex-1 overflow-auto {% if current_user.is_authenticated %}ml-64{% else %}ml-0{% endif %}" id="mainContent">
+            <header class="bg-white shadow-sm">
+                <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+                    <h1 class="text-2xl font-semibold text-gray-900">{% block page_title %}{% endblock %}</h1>
+                </div>
+            </header>
+
+            <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+</body>
+</html>

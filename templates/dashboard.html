@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="router-status-bar bg-white rounded-lg p-3 mb-6 shadow-md">
+    {# Contenedor flex para las 3 secciones: distribuye horizontalmente, asegura que todas se estiren a la misma altura #}
+    <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center space-y-3 md:space-y-0">
+        {# Sección 1: Fecha, Hora y Uptime #}
+        <div class="flex-1 flex flex-col justify-center text-center px-3 py-2 md:border-r md:border-gray-200">
+            <p class="text-xs font-medium text-gray-600">Fecha y Hora Actual:</p>
+            <p class="text-sm font-normal text-gray-800">{{ router_info.current_datetime }}</p> {# Dato dinámico #}
+            <p class="text-xs font-medium text-gray-600 mt-1">Uptime del Router:</p>
+            <p class="text-sm font-normal text-gray-800">{{ router_info.uptime_display }}</p> {# Dato dinámico #}
+        </div>
+
+        {# Sección 2: Modelo del Router y Versión de OS #}
+        <div class="flex-1 flex flex-col justify-center text-center px-3 py-2 md:border-r md:border-gray-200">
+            <p class="text-xs font-medium text-gray-600">Modelo del Router:</p>
+            <p class="text-sm font-normal text-gray-800">{{ router_info.model }}</p> {# Dato dinámico #}
+            <p class="text-xs font-medium text-gray-600 mt-1">Versión de RouterOS:</p>
+            <p class="text-sm font-normal text-gray-800">{{ router_info.version }}</p> {# Dato dinámico #}
+        </div>
+
+        {# Sección 3: CPU, Memoria y Disco - Ajustado para ser más compacto y simétrico, en columna #}
+        <div class="flex-1 flex flex-col justify-center text-center px-3 py-2">
+            <p class="text-xs font-medium text-gray-600">CPU Carga: <span class="font-normal text-blue-600 text-sm">{{ router_info.cpu_load }}</span></p> {# Dato dinámico #}
+            <p class="text-xs font-medium text-gray-600">Memoria: <span class="font-normal text-green-600 text-sm">{{ router_info.memory_used_mb }} / {{ router_info.memory_total_mb }}</span></p> {# Dato dinámico #}
+            <p class="text-xs font-medium text-gray-600">Disco: <span class="font-normal text-purple-600 text-sm">{{ router_info.hdd_used_mb }} / {{ router_info.hdd_total_mb }}</span></p> {# Dato dinámico #}
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <a href="{{ url_for('main.list_active_users') }}" class="card block bg-white rounded-lg p-5">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                <i class="fas fa-wifi text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-500">Usuarios Activos</p>
+                <p class="text-2xl font-semibold">{{ active_users|length }}</p>
+            </div>
+        </div>
+    </a>
+    <a href="{{ url_for('main.list_users') }}" class="card block bg-white rounded-lg p-5">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-green-100 text-green-600">
+                <i class="fas fa-users-cog text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-500">Usuarios Totales</p>
+                <p class="text-2xl font-semibold">{{ all_users|length }}</p>
+            </div>
+        </div>
+    </a>
+</div>
+{% endblock %}

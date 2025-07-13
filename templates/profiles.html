@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestor de Perfiles{% endblock %}
+
+{% block page_title %}Gestor de Perfiles de Usuario{% endblock %}
+
+{% block content %}
+<div class="card bg-white rounded-lg p-6 mb-8">
+    <h2 class="text-lg font-semibold mb-4 text-blue-600">➕ Crear Nuevo Perfil</h2>
+    <form action="{{ url_for('main.create_profile') }}" method="POST" class="space-y-4">
+        <div>
+            <label for="name" class="block text-sm font-medium text-gray-700">Nombre del Perfil</label>
+            <input type="text" name="name" id="name" placeholder="Ej: 1_Hora_512k" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+        </div>
+        <div>
+            <label for="shared_users" class="block text-sm font-medium text-gray-700">Usuarios Compartidos</label>
+            <input type="number" name="shared_users" id="shared_users" value="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+        </div>
+        <div>
+            <label for="rate_limit" class="block text-sm font-medium text-gray-700">Límite de Velocidad (Subida/Bajada)</label>
+            <input type="text" name="rate_limit" id="rate_limit" placeholder="Ej: 512k/1M" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            <p class="mt-1 text-xs text-gray-500">Formato: [upload]/[download]. Ej: 512k/2M (k=kilobits, M=megabits). Dejar en blanco para ilimitado.</p>
+        </div>
+        <div>
+            <label for="expiration_mode" class="block text-sm font-medium text-gray-700">Modo de Expiración</label>
+            <select name="expiration_mode" id="expiration_mode" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                {% for key, value in expiration_scripts.items() %}
+                    <option value="{{ key }}">{{ value.nombre_visible }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="price" class="block text-sm font-medium text-gray-700">Precio (Ej: 1.50)</label>
+            <input type="number" step="0.01" name="price" id="price" placeholder="0.00" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div class="pt-2">
+            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                <i class="fas fa-plus-circle mr-2"></i>Crear Perfil
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="card bg-white rounded-lg overflow-hidden mb-8">
+    <div class="p-6">
+        <h2 class="text-lg font-semibold mb-4">Perfiles Existentes</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuarios Comp.</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Límite Velocidad</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Modo Expiración</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for profile in profiles_list %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">{{ profile.name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">${{ profile.price }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ profile['shared-users'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ profile['rate-limit'] or 'Sin límite' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ profile.expiration_mode_name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="{{ url_for('main.edit_profile_page', profile_id=profile['id']) }}" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200">
+                                <i class="fas fa-pencil-alt mr-2"></i>Editar
+                            </a>
+                            {% if not profile.default == 'true' %}
+                            <a href="{{ url_for('main.delete_profile', profile_id=profile['id']) }}" onclick="return confirm('¿Estás seguro de que quieres ELIMINAR este perfil?')" class="ml-2 inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200">
+                                <i class="fas fa-trash-alt mr-2"></i>Eliminar
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            No se encontraron perfiles de usuario.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
