@@ -1,7 +1,7 @@
 {
     "expira_en_1dia": {
         "nombre_visible": "Expira en 1Dia",
-        "script_on_login": ":if ([:len [/system scheduler find name=\"$user\"]] = 0) do={\r\n    /system scheduler add name=\"$user\" start-time=[:totime ([:datetime] + 24h)] interval=0s on-event=\"\r\n        /ip hotspot active remove [find where user=\\\\\"$user\\\\\"]\r\n        /ip hotspot user remove [find where name=\\\\\"$user\\\\\"]\r\n        /log info \\\\\"Usuario $user eliminado despu\u00e9s de 1 hora de activacion\\\\\"\r\n    \"\r\n    /log info \"Programada eliminacion del usuario $user en 1 hora\"\r\n} else={\r\n    /log info \"La tarea programada para el usuario $user ya existe\"\r\n}"
+        "script_on_login": ":if ([:len [/system scheduler find name=\"$user\"]] = 0) do={\r\n    /system scheduler add name=\"$user\" start-time=[:totime ([:datetime] + 24h)] interval=0s on-event=\"\r\n        /ip hotspot active remove [find where user=\\\\\"$user\\\\\"]\r\n        /ip hotspot user remove [find where name=\\\\\"$user\\\\\"]\r\n        /log info \\\\\"Usuario $user eliminado despu\u00e9s de 1 hora de activacion\\\\\"\r\n    \"df\r\n    /log info \"Programada eliminacion del usuario $user en 1 hora\"\r\n} else={\r\n    /log info \"La tarea programada para el usuario $user ya existe\"\r\n}"
     },
     "duracion_2_horas": {
         "nombre_visible": "duracion 2 horas",
