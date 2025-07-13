@@ -1,7 +1,7 @@
 import routeros_api
 import sys
 import re
-from config import ROUTER_IP, ROUTER_USER, ROUTER_PASSWORD 
+from config import ROUTER_IP, ROUTER_USER, ROUTER_PASSWORD
 
 def get_api_connection():
     """
@@ -25,14 +25,14 @@ def parse_limit_uptime(time_str):
     """
     Parsea una cadena de tiempo de límite de actividad (ej. '30m', '1h') al formato de MikroTik.
     """
-    time_str = str(time_str).strip().lower() 
+    time_str = str(time_str).strip().lower()
     if not time_str:
         return None
     if time_str.isnumeric():
-        return f"{time_str}m" 
-    if time_str[-1] in ['d', 'h', 'm', 's', 'w']: 
-        return time_str 
-    return f"{time_str}m" 
+        return f"{time_str}m"
+    if time_str[-1] in ['d', 'h', 'm', 's', 'w']:
+        return time_str
+    return f"{time_str}m"
 
 # --- Funciones de servicio de alto nivel para Hotspot User y Profile ---
 
@@ -51,11 +51,12 @@ def get_hotspot_user_by_id(user_id):
             return users[0]
     return None
 
-def add_hotspot_user(params):
+# MODIFICACIÓN: Cambiar params a **kwargs para que acepte argumentos de palabra clave
+def add_hotspot_user(**kwargs):
     api = get_api_connection()
     if api:
         users_path = api.get_resource('/ip/hotspot/user')
-        return users_path.add(**params)
+        return users_path.add(**kwargs) # Pasar kwargs directamente
     return False
 
 def set_hotspot_user(user_id, params):
@@ -148,7 +149,7 @@ def get_router_system_info():
             total_memory_mb = round(int(resource.get('total-memory', 0)) / (1024 * 1024))
             free_memory_mb = round(int(resource.get('free-memory', 0)) / (1024 * 1024))
             used_memory_mb = total_memory_mb - free_memory_mb
-            
+
             total_hdd_mb = round(int(resource.get('total-hdd-space', 0)) / (1024 * 1024))
             free_hdd_mb = round(int(resource.get('free-hdd-space', 0)) / (1024 * 1024))
             used_hdd_mb = total_hdd_mb - free_hdd_mb
@@ -159,7 +160,7 @@ def get_router_system_info():
                 'cpu_load': resource.get('cpu-load', 'N/A'),
                 'memory_used_mb': used_memory_mb,
                 'memory_total_mb': total_memory_mb,
-                'hdd_used_mb': used_hdd_mb,
+                'hdd_used_mb': hdd_used_mb,
                 'hdd_total_mb': total_hdd_mb,
                 'board_name': routerboard.get('board-name', 'N/A'),
                 'version': resource.get('version', 'N/A'),
