@@ -129,48 +129,50 @@ def get_router_system_info():
     """
     api = get_api_connection()
     if api:
-        try: # Añadir un bloque try-except para manejar posibles errores en la lectura de recursos
-            # Obtener información de recursos (CPU, memoria, disco)
-            resource_info = api.get_resource('/system/resource').get()
-            # Obtener información de identidad (modelo, versión)
-            routerboard_info = api.get_resource('/system/routerboard').get()
-            # Obtener la hora actual del sistema
-            clock_info = api.get_resource('/system/clock').get()
-            # Obtener el nombre de identidad
-            identity_info = api.get_resource('/system/identity').get()
-
-            # Inicializar variables con valores por defecto
-            total_memory_mb = 0
-            free_memory_mb = 0
-            used_memory_mb = 0
-            total_hdd_mb = 0
-            free_hdd_mb = 0
-            used_hdd_mb = 0
+        try:
+            # Inicializar todas las variables con valores por defecto 'N/A' o 0
+            identity_name = 'N/A'
             cpu_load = 'N/A'
+            memory_used_mb = 0
+            memory_total_mb = 0
+            hdd_used_mb = 0
+            hdd_total_mb = 0
             board_name = 'N/A'
             version = 'N/A'
             build_time = 'N/A'
             current_date = 'N/A'
             current_time = 'N/A'
             uptime = 'N/A'
-            identity_name = 'N/A'
 
+            resource_info = api.get_resource('/system/resource').get()
+            routerboard_info = api.get_resource('/system/routerboard').get()
+            clock_info = api.get_resource('/system/clock').get()
+            identity_info = api.get_resource('/system/identity').get()
 
             if resource_info:
                 resource = resource_info[0]
-                # Convertir bytes a MB
-                total_memory_mb = round(int(resource.get('total-memory', 0)) / (1024 * 1024))
-                free_memory_mb = round(int(resource.get('free-memory', 0)) / (1024 * 1024))
-                used_memory_mb = total_memory_mb - free_memory_mb if total_memory_mb >= free_memory_mb else 0 # Asegurar que no sea negativo
-
-                total_hdd_mb = round(int(resource.get('total-hdd-space', 0)) / (1024 * 1024))
-                free_hdd_mb = round(int(resource.get('free-hdd-space', 0)) / (1024 * 1024))
-                used_hdd_mb = total_hdd_mb - free_hdd_mb if total_hdd_mb >= free_hdd_mb else 0 # Asegurar que no sea negativo
                 
                 cpu_load = resource.get('cpu-load', 'N/A')
                 version = resource.get('version', 'N/A')
                 build_time = resource.get('build-time', 'N/A')
                 uptime = resource.get('uptime', 'N/A')
+
+                # Manejo de memoria
+                total_memory_raw = int(resource.get('total-memory', 0))
+                free_memory_raw = int(resource.get('free-memory', 0))
+                
+                # Asegurar que la conversión a MB se haga de forma segura
+                memory_total_mb = round(total_memory_raw / (1024 * 1024)) if total_memory_raw > 0 else 0
+                memory_used_mb = round((total_memory_raw - free_memory_raw) / (1024 * 1024)) if total_memory_raw >= free_memory_raw else 0
+
+
+                # Manejo de disco
+                total_hdd_raw = int(resource.get('total-hdd-space', 0))
+                free_hdd_raw = int(resource.get('free-hdd-space', 0))
+
+                # Asegurar que la conversión a MB se haga de forma segura
+                hdd_total_mb = round(total_hdd_raw / (1024 * 1024)) if total_hdd_raw > 0 else 0
+                hdd_used_mb = round((total_hdd_raw - free_hdd_raw) / (1024 * 1024)) if total_hdd_raw >= free_hdd_raw else 0
 
             if routerboard_info:
                 routerboard = routerboard_info[0]
@@ -188,10 +190,10 @@ def get_router_system_info():
             return {
                 'identity_name': identity_name,
                 'cpu_load': cpu_load,
-                'memory_used_mb': used_memory_mb,
-                'memory_total_mb': total_memory_mb,
+                'memory_used_mb': memory_used_mb,
+                'memory_total_mb': memory_total_mb,
                 'hdd_used_mb': hdd_used_mb,
-                'hdd_total_mb': total_hdd_mb,
+                'hdd_total_mb': hdd_total_mb,
                 'board_name': board_name,
                 'version': version,
                 'build_time': build_time,

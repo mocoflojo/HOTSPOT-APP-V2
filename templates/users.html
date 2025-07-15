@@ -5,54 +5,63 @@
 {% block page_title %}Lista de Usuarios del Hotspot{% endblock %}
 
 {% block content %}
-<div class="card bg-white rounded-lg p-4 mb-8">
-    <form method="GET" action="{{ url_for('main.list_users') }}" class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-        <div>
-            <label for="search" class="block text-sm font-medium text-gray-700">Buscar por Nombre</label>
-            <input type="text" name="search" id="search" value="{{ search_query or '' }}" placeholder="Nombre de usuario..." class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-        </div>
-        <div>
-            <label for="profile" class="block text-sm font-medium text-gray-700">Filtrar por Perfil</label>
-            <select name="profile" id="profile" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                <option value="">-- Todos los Perfiles --</option>
-                {% for p in profiles %}
-                    <option value="{{ p }}" {% if p == selected_profile %}selected{% endif %}>{{ p }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div>
-            <label for="comment" class="block text-sm font-medium text-gray-700">Filtrar por Lote (Comentario)</label>
-            <select name="comment" id="comment" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                <option value="">-- Todos los Lotes --</option>
-                {% for c in comments %}
-                    <option value="{{ c }}" {% if c == selected_comment %}selected{% endif %}>{{ c }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="flex flex-col space-y-2"> 
-            <div class="flex space-x-2">
+<div class="card bg-white rounded-lg p-6 mb-8">
+    <form method="GET" action="{{ url_for('main.list_users') }}" class="space-y-6"> {# Usar space-y-6 para separar secciones #}
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end"> {# Grid para filtros y botón Filtrar/Limpiar #}
+            <div>
+                <label for="search" class="block text-sm font-medium text-gray-700">Buscar por Nombre</label>
+                <input type="text" name="search" id="search" value="{{ search_query or '' }}" placeholder="Nombre de usuario..." class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+                <label for="profile" class="block text-sm font-medium text-gray-700">Filtrar por Perfil</label>
+                <select name="profile" id="profile" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">-- Todos los Perfiles --</option>
+                    {% for p in profiles %}
+                        <option value="{{ p }}" {% if p == selected_profile %}selected{% endif %}>{{ p }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="comment" class="block text-sm font-medium text-gray-700">Filtrar por Lote (Comentario)</label>
+                <select name="comment" id="comment" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">-- Todos los Lotes --</option>
+                    {% for c in comments %}
+                        <option value="{{ c }}" {% if c == selected_comment %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {# Botones de Filtrar y Limpiar al lado de los filtros #}
+            <div class="flex flex-col space-y-2"> {# Usar flex-col para apilar los botones en el mismo espacio vertical #}
                 <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
                     <i class="fas fa-filter mr-2"></i>Filtrar
                 </button>
                 <a href="{{ url_for('main.list_users') }}" class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                    Limpiar
+                    Limpiar Filtros
                 </a>
             </div>
-            <div>
-                {# Botón para imprimir #}
-                <button type="submit" formaction="{{ url_for('main.print_vouchers') }}" formtarget="_blank"
-                        class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 {% if not all_users %}opacity-50 cursor-not-allowed{% endif %}">
-                    <i class="fas fa-print mr-2"></i>Imprimir Filtrados
-                </button>
-            </div>
-            <div>
-                {# Botón para eliminar filtrados #}
-                <button type="submit" formaction="{{ url_for('main.delete_by_filter') }}"
-                        onclick="return confirm('¿Estás seguro de que quieres ELIMINAR PERMANENTEMENTE a los {{ all_users|length }} usuarios que coinciden con este filtro?')"
-                        class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 {% if not all_users %}opacity-50 cursor-not-allowed{% endif %}">
-                    <i class="fas fa-exclamation-triangle mr-2"></i>Eliminar Filtrados
-                </button>
-            </div>
+        </div>
+
+        {# Sección de Botones de Acción Global (Imprimir y Eliminar) #}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200 mt-6"> {# Añadir pt-4 y border-t para una separación clara #}
+            {# Botón para imprimir #}
+            <button type="submit" formaction="{{ url_for('main.print_vouchers') }}" formtarget="_blank"
+                    class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 {% if not all_users %}opacity-50 cursor-not-allowed{% endif %}"
+                    {% if not all_users or not filters_applied %}disabled{% endif %}> {# Deshabilitar si no hay usuarios o NO hay filtros aplicados #}
+                <i class="fas fa-print mr-2"></i>Imprimir Filtrados
+                {% if filters_applied %} {# Mostrar conteo solo si hay filtros aplicados #}
+                    ({{ all_users|length }})
+                {% endif %}
+            </button>
+            {# Botón para eliminar filtrados #}
+            <button type="submit" formaction="{{ url_for('main.delete_by_filter') }}"
+                    onclick="return confirm('{% if filters_applied %}¿Estás seguro de que quieres ELIMINAR PERMANENTEMENTE a los {{ all_users|length }} usuarios que coinciden con este filtro?{% else %}Esta acción solo está disponible cuando se ha aplicado un filtro. Si deseas eliminar todos los usuarios, aplica un filtro que los contenga a todos y luego usa este botón.{% endif %}')" {# Mensaje más claro y adaptado #}
+                    class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 {% if not all_users or not filters_applied %}opacity-50 cursor-not-allowed{% endif %}" {# <-- CAMBIO CLAVE: opacity y cursor si está deshabilitado #}
+                    {% if not all_users or not filters_applied %}disabled{% endif %}> {# <-- CAMBIO CLAVE: deshabilitar si no hay usuarios O NO hay filtros aplicados #}
+                <i class="fas fa-exclamation-triangle mr-2"></i>Eliminar Filtrados
+                {% if filters_applied %} {# Mostrar conteo solo si hay filtros aplicados #}
+                    ({{ all_users|length }})
+                {% endif %}
+            </button>
         </div>
     </form>
 </div>
@@ -66,7 +75,7 @@
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Perfil</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Datos Descargados</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                        <th scope="col" class="col-span-2 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comentario</th>
                     </tr>
                 </thead>

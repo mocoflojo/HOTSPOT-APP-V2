@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app
-from flask_login import login_required, current_user # <-- Añadir login_required aquí
+from flask_login import login_required, current_user
 
 # Importar desde módulos personalizados
 from config import HOTSPOT_DNS, ConfigError
@@ -18,35 +18,43 @@ from utils import ( # Importar de utils.py
     APP_DATA_FOLDER, PRICES_FILE, EXPIRATION_SCRIPTS_FILE, VOUCHER_TEMPLATE_FILE, LOGO_FILE
 )
 
-# Constantes adicionales que podrían ser movidas a config.py o utils.py si no lo están
-# Estas variables ya deberían importarse desde utils, no definirse aquí.
-# sys, random, string, datetime, re, secure_filename se deberían importar solo si se usan en este archivo y no en un servicio.
-import sys # Usado en este archivo, sí
-import random # Usado en generar_vouchers
-import string # Usado en generar_vouchers
-from datetime import datetime # Usado en generar_vouchers
-import re # Usado en parse_limit_uptime (aunque ahora está en mikrotik_service)
-import os # Necesario para os.path.join en upload_logo, aunque ya esté en utils
+import sys
+import random
+import string
+from datetime import datetime
+import re
+import os
 
 
-# Crear un Blueprint para las rutas principales
 main_bp = Blueprint('main', __name__, template_folder='templates')
-
-# --- RUTAS DE LA INTERFAZ DE ADMINISTRACIÓN ---
 
 @main_bp.route('/dashboard')
 @login_required
 def dashboard():
     api = get_api_connection()
     if not api:
-        return render_template('error_conexion.html', message="No se pudo conectar con el router. Verifica la configuración o la conexión.")
+        flash("No se pudo conectar con el router MikroTik. Por favor, verifica la configuración o la conexión.", "danger")
+        return render_template('dashboard.html',
+                               active_users=[],
+                               all_users=[],
+                               active_page='dashboard',
+                               router_info={
+                                   'current_datetime': 'N/A',
+                                   'uptime_display': 'N/A',
+                                   'model': 'N/A',
+                                   'version': 'N/A',
+                                   'cpu_load': 'N/A',
+                                   'memory_used_mb': 'N/A',
+                                   'memory_total_mb': 'N/A',
+                                   'hdd_used_mb': 'N/A',
+                                   'hdd_total_mb': 'N/A'
+                               })
 
     active_users = get_active_hotspot_users()
     all_users = get_hotspot_users()
 
-    router_info = get_router_system_info() # Obtener la información del router
+    router_info = get_router_system_info()
 
-    # Formatear datos para la plantilla
     formatted_router_info = {
         'current_datetime': 'N/A',
         'uptime_display': 'N/A',
@@ -69,13 +77,15 @@ def dashboard():
         formatted_router_info['memory_total_mb'] = f"{router_info['memory_total_mb']} MB"
         formatted_router_info['hdd_used_mb'] = f"{router_info['hdd_used_mb']} MB"
         formatted_router_info['hdd_total_mb'] = f"{router_info['hdd_total_mb']} MB"
+    else:
+        flash("No se pudo obtener la información completa del router MikroTik. Verifica la conexión o los permisos.", "warning")
 
 
     return render_template('dashboard.html',
-                           active_users=active_users,
-                           all_users=all_users,
+                           active_users=active_users if active_users is not None else [],
+                           all_users=all_users if all_users is not None else [],
                            active_page='dashboard',
-                           router_info=formatted_router_info) # Pasar los datos formateados
+                           router_info=formatted_router_info)
 
 @main_bp.route('/profiles')
 @login_required
@@ -237,7 +247,7 @@ def generar_vouchers():
 
     limit_uptime_mikrotik_format = parse_limit_uptime(limit_uptime_raw)
 
-    char_set = string.digits # Defino aquí para evitar NameError
+    char_set = string.digits
     if caracteres == 'numeros':
         char_set = string.digits
     elif caracteres == 'letras':
@@ -299,36 +309,54 @@ def create_manual_user():
 def list_users():
     api = get_api_connection()
     if not api:
-        return render_template('error_conexion.html', message="No se pudo conectar con el router. Verifica la configuración o la conexión.")
+        flash("No se pudo conectar con el router. Los usuarios no pudieron ser cargados.", "danger")
+        return render_template('users.html',
+                               all_users=[],
+                               profiles=[],
+                               comments=[],
+                               selected_profile='',
+                               selected_comment='',
+                               search_query='',
+                               active_page='users',
+                               filters_applied=False)
 
     profile_filter = request.args.get('profile', '')
     comment_filter = request.args.get('comment', '')
     search_query = request.args.get('search', '').strip()
 
-    all_users_list = get_hotspot_users()
+    all_users_from_mikrotik = get_hotspot_users()
+    
+    if all_users_from_mikrotik is None:
+        all_users_from_mikrotik = []
+        flash("No se pudieron cargar los usuarios del hotspot. Verifica la conexión con el router.", "danger")
 
     all_profiles_list = get_hotspot_profiles()
-    profiles_for_dropdown = sorted([p['name'] for p in all_profiles_list])
+    profiles_for_dropdown = sorted([p['name'] for p in all_profiles_list]) if all_profiles_list else []
 
-    comments = sorted(list(set(user.get('comment', '') for user in all_users_list if user.get('comment'))))
+    comments = sorted(list(set(user.get('comment', '') for user in all_users_from_mikrotik if user.get('comment'))))
 
-    filtered_users = all_users_list
+    # Determinar si algún filtro está activo
+    filters_applied = bool(profile_filter or comment_filter or search_query)
+
+    # Aplicar los filtros a la lista completa
+    filtered_users_list = all_users_from_mikrotik
     if profile_filter:
-        filtered_users = [user for user in filtered_users if user.get('profile') == profile_filter]
+        filtered_users_list = [user for user in filtered_users_list if user.get('profile') == profile_filter]
     if comment_filter:
-        filtered_users = [user for user in filtered_users if user.get('comment') == comment_filter]
+        filtered_users_list = [user for user in filtered_users_list if user.get('comment') == comment_filter]
     if search_query:
-        filtered_users = [user for user in filtered_users if search_query.lower() in user.get('name', '').lower()]
+        filtered_users_list = [user for user in filtered_users_list if search_query.lower() in user.get('name', '').lower()]
 
     return render_template(
         'users.html',
-        all_users=filtered_users,
+        all_users=filtered_users_list,
         profiles=profiles_for_dropdown,
         comments=comments,
         selected_profile=profile_filter,
         selected_comment=comment_filter,
         search_query=search_query,
-        active_page='users'
+        active_page='users',
+        filters_applied=filters_applied
     )
 
 @main_bp.route('/edit_user/<user_id>')
@@ -343,6 +371,8 @@ def edit_user_page(user_id):
         return "Usuario no encontrado", 404
 
     profiles = get_hotspot_profiles()
+    if profiles is None:
+        profiles = []
 
     return render_template('edit_user.html', user_data=user_data, profiles=profiles, active_page='users')
 
@@ -351,7 +381,8 @@ def edit_user_page(user_id):
 def update_user(user_id):
     api = get_api_connection()
     if not api:
-        return render_template('error_conexion.html', message="No se pudo conectar con el router. Verifica la configuración o la conexión.")
+        flash("No se pudo conectar con el router. El usuario no fue actualizado.", "danger")
+        return redirect(url_for('main.list_users'))
 
     update_params = {
         'profile': request.form['profile'],
@@ -366,22 +397,36 @@ def update_user(user_id):
     if limit_uptime_mikrotik_format:
         update_params['limit-uptime'] = limit_uptime_mikrotik_format
 
-    set_hotspot_user(user_id, update_params)
+    if set_hotspot_user(user_id, update_params):
+        flash("Usuario actualizado exitosamente.", "success")
+    else:
+        flash("Error al actualizar el usuario.", "danger")
 
     return redirect(url_for('main.list_users'))
 
 @main_bp.route('/delete_by_filter')
 @login_required
 def delete_by_filter():
-    api = get_api_connection()
-    if not api:
-        return render_template('error_conexion.html', message="No se pudo conectar con el router. Verifica la configuración o la conexión.")
-
+    # Obtener los filtros para comprobar si alguno está activo
     profile_filter = request.args.get('profile', '')
     comment_filter = request.args.get('comment', '')
     search_query = request.args.get('search', '').strip()
 
+    # Si no hay ningún filtro aplicado, redirigir y mostrar un mensaje
+    if not (profile_filter or comment_filter or search_query):
+        flash("La eliminación por filtro requiere que se aplique al menos un criterio de búsqueda. Si desea eliminar todos los usuarios, primero filtre por un criterio que los incluya a todos (Ej. un comentario común a todos) y luego use este botón.", "info")
+        return redirect(url_for('main.list_users'))
+
+    api = get_api_connection()
+    if not api:
+        flash("No se pudo conectar con el router. Los usuarios no fueron eliminados.", "danger")
+        return redirect(url_for('main.list_users'))
+
     all_users_list = get_hotspot_users()
+    if all_users_list is None:
+        all_users_list = []
+        flash("No se pudieron cargar los usuarios para eliminar. Verifica la conexión con el router.", "danger")
+
 
     users_to_delete = all_users_list
     if profile_filter:
@@ -392,8 +437,19 @@ def delete_by_filter():
         users_to_delete = [user for user in users_to_delete if search_query.lower() in user.get('name', '').lower()]
 
     ids_to_delete = [user['id'] for user in users_to_delete if 'id' in user]
+    
+    # Si después de aplicar los filtros la lista está vacía, mostrar mensaje
+    if not ids_to_delete:
+        flash("No se encontraron usuarios que coincidan con los filtros para eliminar. Ningún usuario fue eliminado.", "warning")
+        return redirect(url_for('main.list_users'))
+
+    deleted_count = 0
     for user_id in ids_to_delete:
-        remove_hotspot_user(user_id)
+        if remove_hotspot_user(user_id):
+            deleted_count += 1
+    
+    flash(f"Se eliminaron {deleted_count} de {len(ids_to_delete)} usuarios filtrados.", "success")
+
 
     return redirect(url_for('main.list_users'))
 
@@ -402,9 +458,13 @@ def delete_by_filter():
 def delete_user(user_id):
     api = get_api_connection()
     if not api:
-        return render_template('error_conexion.html', message="No se pudo conectar con el router. Verifica la configuración o la conexión.")
+        flash("No se pudo conectar con el router. El usuario no fue eliminado.", "danger")
+        return redirect(url_for('main.list_users'))
 
-    remove_hotspot_user(user_id)
+    if remove_hotspot_user(user_id):
+        flash("Usuario eliminado exitosamente.", "success")
+    else:
+        flash("Error al eliminar el usuario.", "danger")
 
     return redirect(url_for('main.list_users'))
 
@@ -416,6 +476,9 @@ def list_active_users():
         return render_template('error_conexion.html', message="No se pudo conectar con el router. Verifica la configuración o la conexión.")
 
     active_users_list = get_active_hotspot_users()
+    if active_users_list is None:
+        active_users_list = []
+        flash("No se pudieron cargar los usuarios activos del hotspot. Verifica la conexión con el router.", "danger")
 
     return render_template('active_users.html', active_users_list=active_users_list, active_page='dashboard')
 
@@ -424,9 +487,13 @@ def list_active_users():
 def disconnect_user(user_id):
     api = get_api_connection()
     if not api:
-        return render_template('error_conexion.html', message="No se pudo conectar con el router. Verifica la configuración o la conexión.")
+        flash("No se pudo conectar con el router. El usuario no fue desconectado.", "danger")
+        return redirect(url_for('main.list_active_users'))
 
-    disconnect_hotspot_user(user_id)
+    if disconnect_hotspot_user(user_id):
+        flash("Usuario desconectado exitosamente.", "success")
+    else:
+        flash("Error al desconectar el usuario.", "danger")
 
     return redirect(url_for('main.list_active_users'))
 
@@ -435,9 +502,13 @@ def disconnect_user(user_id):
 def disable_user(user_id):
     api = get_api_connection()
     if not api:
-        return render_template('error_conexion.html', message="No se pudo conectar con el router. Verifica la configuración o la conexión.")
+        flash("No se pudo conectar con el router. El usuario no fue deshabilitado.", "danger")
+        return redirect(url_for('main.list_users'))
 
-    set_hotspot_user(user_id, {'disabled': 'true'})
+    if set_hotspot_user(user_id, {'disabled': 'true'}):
+        flash("Usuario deshabilitado exitosamente.", "success")
+    else:
+        flash("Error al deshabilitar el usuario.", "danger")
 
     return redirect(url_for('main.list_users'))
 
@@ -446,9 +517,13 @@ def disable_user(user_id):
 def enable_user(user_id):
     api = get_api_connection()
     if not api:
-        return render_template('error_conexion.html', message="No se pudo conectar con el router. Verifica la configuración o la conexión.")
+        flash("No se pudo conectar con el router. El usuario no fue habilitado.", "danger")
+        return redirect(url_for('main.list_users'))
 
-    set_hotspot_user(user_id, {'disabled': 'false'})
+    if set_hotspot_user(user_id, {'disabled': 'false'}):
+        flash("Usuario habilitado exitosamente.", "success")
+    else:
+        flash("Error al habilitar el usuario.", "danger")
 
     return redirect(url_for('main.list_users'))
 
@@ -473,7 +548,8 @@ def create_expiration_mode():
     script_on_login = request.form['script_on_login'].strip()
 
     if not nombre_visible or not script_on_login:
-        return "Nombre visible y script son obligatorios", 400
+        flash("Nombre visible y script son obligatorios.", "danger")
+        return redirect(url_for('main.expiration_modes_page'))
 
     custom_scripts = load_custom_expiration_scripts()
     new_key = nombre_visible.lower().replace(" ", "_")
@@ -487,7 +563,7 @@ def create_expiration_mode():
         "script_on_login": script_on_login
     }
     save_custom_expiration_scripts(custom_scripts)
-
+    flash(f"Modo de expiración '{nombre_visible}' creado exitosamente.", "success")
     return redirect(url_for('main.expiration_modes_page'))
 
 @main_bp.route('/edit_expiration_mode/<mode_key>')
@@ -497,7 +573,8 @@ def edit_expiration_mode_page(mode_key):
     mode_data = all_scripts.get(mode_key)
 
     if not mode_data:
-        return "Modo de expiración no encontrado", 404
+        flash("Modo de expiración no encontrado.", "danger")
+        return redirect(url_for('main.expiration_modes_page'))
 
     is_predefined = mode_key in SCRIPTS_DE_EXPIRACION
 
@@ -514,18 +591,21 @@ def update_expiration_mode(mode_key):
     script_on_login = request.form['script_on_login'].strip()
 
     if not nombre_visible or not script_on_login:
-        return "Nombre visible y script son obligatorios", 400
+        flash("Nombre visible y script son obligatorios.", "danger")
+        return redirect(url_for('main.edit_expiration_mode_page', mode_key=mode_key))
 
     if mode_key in SCRIPTS_DE_EXPIRACION:
-        return "No se pueden editar los modos de expiración predefinidos.", 403
+        flash("No se pueden editar los modos de expiración predefinidos.", "danger")
+        return redirect(url_for('main.expiration_modes_page'))
 
     custom_scripts = load_custom_expiration_scripts()
     if mode_key in custom_scripts:
         custom_scripts[mode_key]['nombre_visible'] = nombre_visible
         custom_scripts[mode_key]['script_on_login'] = script_on_login
         save_custom_expiration_scripts(custom_scripts)
+        flash(f"Modo de expiración '{nombre_visible}' actualizado exitosamente.", "success")
     else:
-        return "Modo de expiración personalizado no encontrado para actualizar", 404
+        flash("Modo de expiración personalizado no encontrado para actualizar.", "danger")
 
     return redirect(url_for('main.expiration_modes_page'))
 
@@ -533,30 +613,46 @@ def update_expiration_mode(mode_key):
 @login_required
 def delete_expiration_mode(mode_key):
     if mode_key in SCRIPTS_DE_EXPIRACION:
-        return "No se pueden eliminar los modos de expiración predefinidos.", 403
+        flash("No se pueden eliminar los modos de expiración predefinidos.", "danger")
+        return redirect(url_for('main.expiration_modes_page'))
 
     custom_scripts = load_custom_expiration_scripts()
     if mode_key in custom_scripts:
         del custom_scripts[mode_key]
         save_custom_expiration_scripts(custom_scripts)
+        flash("Modo de expiración personalizado eliminado exitosamente.", "success")
     else:
-        return "Modo de expiración personalizado no encontrado para eliminar", 404
+        flash("Modo de expiración personalizado no encontrado para eliminar.", "danger")
 
     return redirect(url_for('main.expiration_modes_page'))
 
 @main_bp.route('/print_vouchers')
 @login_required
 def print_vouchers():
-    api = get_api_connection()
-    if not api:
-        return render_template('error_conexion.html', message="No se pudo conectar con el router. Verifica la configuración o la conexión.")
-
+    # Obtener los filtros para comprobar si alguno está activo
     profile_filter = request.args.get('profile', '')
     comment_filter = request.args.get('comment', '')
     search_query = request.args.get('search', '').strip()
 
+    # Si no hay ningún filtro aplicado, redirigir y mostrar un mensaje
+    if not (profile_filter or comment_filter or search_query):
+        flash("Para imprimir vouchers, es necesario aplicar al menos un filtro.", "info")
+        return redirect(url_for('main.list_users'))
+
+    api = get_api_connection()
+    if not api:
+        flash("No se pudo conectar con el router. No se pudieron generar los vouchers para imprimir.", "danger")
+        return redirect(url_for('main.list_users'))
+
     all_users_list = get_hotspot_users()
+    if all_users_list is None:
+        all_users_list = []
+        flash("No se pudieron cargar los usuarios del hotspot. Verifica la conexión con el router.", "danger")
+
     all_profiles_mikrotik = get_hotspot_profiles()
+    if all_profiles_mikrotik is None:
+        all_profiles_mikrotik = []
+
     all_prices = load_prices()
     all_expiration_scripts = get_all_expiration_scripts()
 
@@ -567,6 +663,11 @@ def print_vouchers():
         filtered_users = [user for user in filtered_users if user.get('comment') == comment_filter]
     if search_query:
         filtered_users = [user for user in filtered_users if search_query.lower() in user.get('name', '').lower()]
+
+    # Si después de aplicar los filtros la lista está vacía, mostrar mensaje
+    if not filtered_users:
+        flash("No se encontraron usuarios que coincidan con los filtros para imprimir. Ningún voucher fue generado.", "warning")
+        return redirect(url_for('main.list_users'))
 
     vouchers_data = []
     for user in filtered_users:
@@ -601,6 +702,10 @@ def print_vouchers():
             voucher_template_content = f.read()
     except FileNotFoundError:
         voucher_template_content = ""
+        flash("No se encontró la plantilla de vouchers. Usa el editor de plantillas para crearla.", "warning")
+    except Exception as e:
+        voucher_template_content = ""
+        flash(f"Error al leer la plantilla de vouchers: {e}", "danger")
 
     rendered_vouchers_html = []
     for voucher in vouchers_data:
@@ -613,6 +718,7 @@ def print_vouchers():
         except Exception as e:
             error_html = f"<div style='color: red; padding: 5px; border: 1px solid red; margin: 5px;'>Error en plantilla del voucher '{voucher.get('username', 'N/A')}': {e}</div>"
             rendered_vouchers_html.append(error_html)
+            flash(f"Error al renderizar voucher para {voucher.get('username', 'N/A')}: {e}", "danger")
 
 
     return render_template('vouchers/print_vouchers.html',
@@ -629,48 +735,55 @@ def voucher_template_editor():
         try:
             with open(VOUCHER_TEMPLATE_FILE, 'w', encoding='utf-8') as f:
                 f.write(new_template_content)
-            return redirect(url_for('main.voucher_template_editor', saved='true'))
+            flash("Plantilla guardada exitosamente.", "success")
+            return redirect(url_for('main.voucher_template_editor'))
         except Exception as e:
-            return render_template('error_conexion.html', message=f"Error al guardar la plantilla: {e}")
+            flash(f"Error al guardar la plantilla: {e}", "danger")
+            return redirect(url_for('main.voucher_template_editor'))
 
     try:
         with open(VOUCHER_TEMPLATE_FILE, 'r', encoding='utf-8') as f:
             current_template_content = f.read()
     except FileNotFoundError:
         current_template_content = ""
+        flash("La plantilla de vouchers no existe. Se ha cargado una plantilla vacía.", "warning")
     except Exception as e:
         current_template_content = f""
+        flash(f"Error al leer la plantilla de vouchers: {e}", "danger")
 
-    saved_message = request.args.get('saved')
-    if saved_message == 'true':
-        saved_message = "Plantilla guardada exitosamente."
 
     return render_template('template_editor.html',
                            current_template_content=current_template_content,
                            active_page='template_editor',
-                           saved_message=saved_message,
                            upload_logo_message=upload_logo_message)
 
 @main_bp.route('/upload_logo', methods=['POST'])
 @login_required
 def upload_logo():
     if 'logo_file' not in request.files:
-        return redirect(url_for('main.voucher_template_editor', upload_logo_message='No se seleccionó ningún archivo.'))
+        flash('No se seleccionó ningún archivo.', "warning")
+        return redirect(url_for('main.voucher_template_editor'))
 
     file = request.files['logo_file']
 
     if file.filename == '':
-        return redirect(url_for('main.voucher_template_editor', upload_logo_message='No se seleccionó ningún archivo.'))
+        flash('No se seleccionó ningún archivo.', "warning")
+        return redirect(url_for('main.voucher_template_editor'))
 
     if file and allowed_file(file.filename):
         try:
             filename = 'logo.png'
+            if not os.path.exists(APP_DATA_FOLDER):
+                os.makedirs(APP_DATA_FOLDER)
             file.save(os.path.join(APP_DATA_FOLDER, filename))
-            return redirect(url_for('main.voucher_template_editor', upload_logo_message='Logo subido exitosamente.'))
+            flash('Logo subido exitosamente.', "success")
+            return redirect(url_for('main.voucher_template_editor'))
         except Exception as e:
-            return redirect(url_for('main.voucher_template_editor', upload_logo_message=f'Error al subir el logo: {e}'))
+            flash(f'Error al subir el logo: {e}', "danger")
+            return redirect(url_for('main.voucher_template_editor'))
     else:
-        return redirect(url_for('main.voucher_template_editor', upload_logo_message='Tipo de archivo no permitido. Solo PNG, JPG, JPEG, GIF.'))
+        flash('Tipo de archivo no permitido. Solo PNG, JPG, JPEG, GIF.', "warning")
+        return redirect(url_for('main.voucher_template_editor'))
 
 
 @main_bp.route('/preview_voucher_template', methods=['POST'])
