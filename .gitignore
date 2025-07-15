@@ -1,6 +1,3 @@
-__pycache__/
-*.pyc
-instance/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
