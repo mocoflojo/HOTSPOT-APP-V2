@@ -7,5 +7,11 @@
     },
     "asdfsadfa": {
         "price": "5000"
+    },
+    "1_hora": {
+        "price": "10"
+    },
+    "2_Horas": {
+        "price": "20"
     }
 }

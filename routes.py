@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 
 # Importar desde módulos personalizados
 from config import HOTSPOT_DNS, ConfigError
-from database import db, User
+from database import db, User, Sale
 from mikrotik_service import ( # Importar servicios de MikroTik
     get_api_connection, parse_limit_uptime,
     get_hotspot_users, get_hotspot_user_by_id, add_hotspot_user, set_hotspot_user, remove_hotspot_user,
@@ -21,16 +21,63 @@ from utils import ( # Importar de utils.py
 import sys
 import random
 import string
-from datetime import datetime
+from datetime import datetime, timedelta
 import re
 import os
+from sqlalchemy import func
 
 
 main_bp = Blueprint('main', __name__, template_folder='templates')
 
+def check_and_record_active_sales():
+    """
+    Verifica los usuarios activos y registra una venta si es la primera vez que se detectan.
+    """
+    active_users = get_active_hotspot_users()
+    if not active_users:
+        return
+
+    prices = load_prices()
+    all_users = get_hotspot_users() # Necesitamos esto para saber el perfil del usuario activo si no viene en active_users
+    
+    # Crear un mapa de usuario -> perfil para acceso rápido
+    user_profile_map = {u['name']: u.get('profile') for u in all_users} if all_users else {}
+
+    for active_user in active_users:
+        username = active_user.get('user')
+        if not username:
+            continue
+
+        # Verificar si ya existe una venta para este usuario
+        existing_sale = Sale.query.filter_by(ticket_code=username).first()
+        if not existing_sale:
+            # Es una nueva venta!
+            profile_name = user_profile_map.get(username, 'Unknown')
+            price_data = prices.get(profile_name, {})
+            price = float(price_data.get('price', 0.0))
+
+            if price > 0:
+                new_sale = Sale(
+                    ticket_code=username,
+                    profile_name=profile_name,
+                    price=price,
+                    date_created=datetime.now()
+                )
+                db.session.add(new_sale)
+                print(f"💰 Venta registrada: {username} - ${price}")
+    
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error al guardar ventas: {e}")
+
 @main_bp.route('/dashboard')
 @login_required
 def dashboard():
+    # Registrar ventas de usuarios activos
+    check_and_record_active_sales()
+
     api = get_api_connection()
     if not api:
         flash("No se pudo conectar con el router MikroTik. Por favor, verifica la configuración o la conexión.", "danger")
@@ -471,6 +518,9 @@ def delete_user(user_id):
 @main_bp.route('/active_users')
 @login_required
 def list_active_users():
+    # Registrar ventas de usuarios activos
+    check_and_record_active_sales()
+
     api = get_api_connection()
     if not api:
         return render_template('error_conexion.html', message="No se pudo conectar con el router. Verifica la configuración o la conexión.")
@@ -808,3 +858,70 @@ def preview_voucher_template():
         return rendered_html
     except Exception as e:
         return f"<div style='color: red; padding: 20px;'>Error de Jinja2 en la plantilla:<br><pre>{e}</pre></div>"
+
+@main_bp.route('/reports')
+@login_required
+def reports_page():
+    # Asegurar que las ventas estén actualizadas
+    check_and_record_active_sales()
+
+    # Obtener filtros de la URL
+    start_date_str = request.args.get('start_date')
+    end_date_str = request.args.get('end_date')
+    profile_filter = request.args.get('profile')
+
+    # Construir la consulta base
+    query = Sale.query
+
+    # Aplicar filtros
+    if start_date_str:
+        try:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+            query = query.filter(Sale.date_created >= start_date)
+        except ValueError:
+            pass # Ignorar fecha inválida
+
+    if end_date_str:
+        try:
+            # Ajustar para incluir todo el día final (hasta las 23:59:59)
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d') + timedelta(days=1) - timedelta(seconds=1)
+            query = query.filter(Sale.date_created <= end_date)
+        except ValueError:
+            pass
+
+    if profile_filter:
+        query = query.filter(Sale.profile_name == profile_filter)
+
+    # Ejecutar consulta para la tabla (ordenada por fecha descendente)
+    # Si hay filtros, mostramos todos los resultados que coincidan. Si no, limitamos a 50.
+    if start_date_str or end_date_str or profile_filter:
+        sales_list = query.order_by(Sale.date_created.desc()).all()
+    else:
+        sales_list = query.order_by(Sale.date_created.desc()).limit(50).all()
+
+    # Calcular totales
+    total_filtered = sum(sale.price for sale in sales_list)
+
+    # Totales generales (para las tarjetas fijas)
+    today = datetime.now().date()
+    sales_today = Sale.query.filter(func.date(Sale.date_created) == today).all()
+    total_today = sum(sale.price for sale in sales_today)
+
+    current_month = datetime.now().strftime('%Y-%m')
+    sales_month = Sale.query.filter(func.strftime('%Y-%m', Sale.date_created) == current_month).all()
+    total_month = sum(sale.price for sale in sales_month)
+
+    # Obtener lista de perfiles únicos para el filtro
+    unique_profiles = db.session.query(Sale.profile_name).distinct().all()
+    profiles_list = sorted([p[0] for p in unique_profiles])
+
+    return render_template('reports.html',
+                           sales_list=sales_list,
+                           total_filtered=total_filtered,
+                           total_today=total_today,
+                           total_month=total_month,
+                           profiles_list=profiles_list,
+                           selected_start_date=start_date_str,
+                           selected_end_date=end_date_str,
+                           selected_profile=profile_filter,
+                           active_page='reports')
