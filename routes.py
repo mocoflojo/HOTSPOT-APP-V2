@@ -770,7 +770,6 @@ def print_vouchers():
             rendered_vouchers_html.append(error_html)
             flash(f"Error al renderizar voucher para {voucher.get('username', 'N/A')}: {e}", "danger")
 
-
     return render_template('vouchers/print_vouchers.html',
                            rendered_vouchers_html=rendered_vouchers_html,
                            hotspot_dns=HOTSPOT_DNS)
@@ -915,11 +914,39 @@ def reports_page():
     unique_profiles = db.session.query(Sale.profile_name).distinct().all()
     profiles_list = sorted([p[0] for p in unique_profiles])
 
+    # ===== WEEKLY SALES CALCULATIONS =====
+    today_date = datetime.now()
+    current_weekday = today_date.weekday()  # 0 = Monday, 6 = Sunday
+    week_start = (today_date - timedelta(days=current_weekday)).replace(hour=0, minute=0, second=0, microsecond=0)
+    week_end = week_start + timedelta(days=7) - timedelta(seconds=1)
+    
+    sales_this_week = Sale.query.filter(
+        Sale.date_created >= week_start,
+        Sale.date_created <= week_end
+    ).all()
+    total_this_week = sum(sale.price for sale in sales_this_week)
+    
+    prev_week_start = week_start - timedelta(days=7)
+    prev_week_end = week_start - timedelta(seconds=1)
+    sales_prev_week = Sale.query.filter(
+        Sale.date_created >= prev_week_start,
+        Sale.date_created <= prev_week_end
+    ).all()
+    total_prev_week = sum(sale.price for sale in sales_prev_week)
+    
+    if total_prev_week > 0:
+        week_change_percent = ((total_this_week - total_prev_week) / total_prev_week) * 100
+    else:
+        week_change_percent = 100 if total_this_week > 0 else 0
+
     return render_template('reports.html',
                            sales_list=sales_list,
                            total_filtered=total_filtered,
                            total_today=total_today,
                            total_month=total_month,
+                           total_this_week=total_this_week,
+                           total_prev_week=total_prev_week,
+                           week_change_percent=week_change_percent,
                            profiles_list=profiles_list,
                            selected_start_date=start_date_str,
                            selected_end_date=end_date_str,

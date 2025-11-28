@@ -23,6 +23,17 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
+# --- MODELO DE VENTAS ---
+class Sale(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ticket_code = db.Column(db.String(80), unique=True, nullable=False) # Código del usuario/pin para evitar duplicados
+    profile_name = db.Column(db.String(80), nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    date_created = db.Column(db.DateTime, nullable=False)
+
+    def __repr__(self):
+        return f'<Sale {self.ticket_code} - {self.price}>'
+
 # user_loader para Flask-Login
 @login_manager.user_loader
 def load_user(user_id):
