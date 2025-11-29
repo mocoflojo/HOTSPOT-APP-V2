@@ -5,91 +5,149 @@
 {% block page_title %}Gestor de Modos de Expiración{% endblock %}
 
 {% block content %}
-<div class="card bg-white rounded-lg p-6 mb-8">
-    <h2 class="text-lg font-semibold mb-4 text-blue-600">➕ Crear Nuevo Modo de Expiración Personalizado</h2>
-    <form action="{{ url_for('main.create_expiration_mode') }}" method="POST" class="space-y-4">
-        <div>
-            <label for="nombre_visible" class="block text-sm font-medium text-gray-700">Nombre Visible</label>
-            <input type="text" name="nombre_visible" id="nombre_visible" placeholder="Ej: Eliminar al día siguiente" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+<!-- Formulario de Creación con Diseño Mejorado -->
+<div
+    class="bg-gradient-to-br from-indigo-50 to-purple-100 rounded-xl shadow-lg overflow-hidden border border-indigo-200 mb-8">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-4">
+        <div class="flex items-center">
+            <div class="p-3 bg-indigo-500 rounded-lg mr-4">
+                <i class="fas fa-stopwatch text-2xl"></i>
+            </div>
+            <div>
+                <h2 class="text-xl font-bold">Crear Nuevo Modo de Expiración</h2>
+                <p class="text-indigo-100 text-sm">Define scripts personalizados para el control de tiempo</p>
+            </div>
         </div>
-        <div>
-            <label for="script_on_login" class="block text-sm font-medium text-gray-700">Script RouterOS (on-login)</label>
-            <textarea name="script_on_login" id="script_on_login" rows="6" placeholder=":log info &quot;Usuario conectado&quot;;" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 font-mono text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required></textarea>
-            <p class="mt-1 text-xs text-gray-500">Este script se ejecutará en el MikroTik cuando un usuario con este modo de expiración inicie sesión. Debe ser un comando RouterOS válido.</p>
+    </div>
+
+    <!-- Formulario -->
+    <form action="{{ url_for('main.create_expiration_mode') }}" method="POST" class="p-6 bg-white">
+        <div class="grid grid-cols-1 gap-6">
+            <div>
+                <label for="nombre_visible" class="block text-sm font-semibold text-gray-700 mb-1">
+                    <i class="fas fa-tag text-indigo-600 mr-1"></i>Nombre Visible
+                </label>
+                <input type="text" name="nombre_visible" id="nombre_visible" placeholder="Ej: Eliminar al día siguiente"
+                    class="w-full border-2 border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    required>
+            </div>
+
+            <div>
+                <label for="script_on_login" class="block text-sm font-semibold text-gray-700 mb-1">
+                    <i class="fas fa-code text-indigo-600 mr-1"></i>Script RouterOS (on-login)
+                </label>
+                <textarea name="script_on_login" id="script_on_login" rows="4"
+                    placeholder=":log info &quot;Usuario conectado&quot;;"
+                    class="w-full border-2 border-gray-300 rounded-lg shadow-sm py-2 px-3 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    required></textarea>
+                <p class="mt-2 text-xs text-gray-500 flex items-center">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Este script se ejecutará en el MikroTik cuando el usuario inicie sesión.
+                </p>
+            </div>
         </div>
-        <div class="pt-2">
-            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
-                <i class="fas fa-plus-circle mr-2"></i>Crear Modo
+
+        <!-- Botón grande -->
+        <div class="mt-6">
+            <button type="submit"
+                class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform transition hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-300">
+                <i class="fas fa-plus-circle mr-2"></i>Crear Modo Personalizado
             </button>
         </div>
     </form>
 </div>
 
-<div class="card bg-white rounded-lg overflow-hidden mb-8">
-    <div class="p-6">
-        <h2 class="text-lg font-semibold mb-4">Modos de Expiración Predefinidos</h2>
-        <div class="overflow-x-auto mb-6">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clave Interna</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre Visible</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Script (Parcial)</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    {% for key, mode in predefined_modes.items() %}
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">{{ key }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ mode.nombre_visible }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-500 font-mono">{{ mode.script_on_login[:50] }}...</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                Predefinido
-                            </span>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+<!-- Grid de Modos de Expiración -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+
+    <!-- Columna 1: Modos Predefinidos -->
+    <div>
+        <div class="flex items-center mb-4">
+            <div class="p-2 bg-blue-100 rounded-lg mr-3">
+                <i class="fas fa-shield-alt text-blue-600 text-xl"></i>
+            </div>
+            <h2 class="text-xl font-bold text-gray-800">Modos Predefinidos</h2>
         </div>
 
-        <h2 class="text-lg font-semibold mb-4 mt-8">Modos de Expiración Personalizados</h2>
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clave Interna</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre Visible</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Script (Parcial)</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    {% for key, mode in custom_modes.items() %}
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">{{ key }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ mode.nombre_visible }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-500 font-mono">{{ mode.script_on_login[:50] }}...</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="{{ url_for('main.edit_expiration_mode_page', mode_key=key) }}" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200">
-                                <i class="fas fa-pencil-alt mr-2"></i>Editar
-                            </a>
-                            <a href="{{ url_for('main.delete_expiration_mode', mode_key=key) }}" onclick="return confirm('¿Estás seguro de que quieres ELIMINAR este modo de expiración personalizado?')" class="ml-2 inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200">
-                                <i class="fas fa-trash-alt mr-2"></i>Eliminar
-                            </a>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">
-                            No se han definido modos de expiración personalizados.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="space-y-4">
+            {% for key, mode in predefined_modes.items() %}
+            <div
+                class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-300 overflow-hidden">
+                <div class="p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-gray-800">{{ mode.nombre_visible }}</h3>
+                        <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
+                            Predefinido
+                        </span>
+                    </div>
+                    <div class="bg-gray-50 rounded p-2 border border-gray-200 mt-2">
+                        <p class="text-xs font-mono text-gray-600 truncate">
+                            <i class="fas fa-terminal mr-1 text-gray-400"></i>{{ mode.script_on_login }}
+                        </p>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-2">Clave: <span class="font-mono">{{ key }}</span></p>
+                </div>
+            </div>
+            {% endfor %}
         </div>
     </div>
+
+    <!-- Columna 2: Modos Personalizados -->
+    <div>
+        <div class="flex items-center mb-4">
+            <div class="p-2 bg-purple-100 rounded-lg mr-3">
+                <i class="fas fa-magic text-purple-600 text-xl"></i>
+            </div>
+            <h2 class="text-xl font-bold text-gray-800">Modos Personalizados</h2>
+        </div>
+
+        <div class="space-y-4">
+            {% if custom_modes %}
+            {% for key, mode in custom_modes.items() %}
+            <div
+                class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-300 overflow-hidden">
+                <div class="p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-gray-800">{{ mode.nombre_visible }}</h3>
+                        <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded-full">
+                            Personalizado
+                        </span>
+                    </div>
+                    <div class="bg-gray-50 rounded p-2 border border-gray-200 mt-2">
+                        <p class="text-xs font-mono text-gray-600 break-all">
+                            <i class="fas fa-terminal mr-1 text-gray-400"></i>{{ mode.script_on_login[:100] }}{% if
+                            mode.script_on_login|length > 100 %}...{% endif %}
+                        </p>
+                    </div>
+
+                    <div class="flex justify-between items-center mt-4 pt-3 border-t border-gray-100">
+                        <p class="text-xs text-gray-400">Clave: <span class="font-mono">{{ key }}</span></p>
+                        <div class="flex gap-2">
+                            <a href="{{ url_for('main.edit_expiration_mode_page', mode_key=key) }}"
+                                class="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors">
+                                <i class="fas fa-pencil-alt mr-1"></i>Editar
+                            </a>
+                            <a href="{{ url_for('main.delete_expiration_mode', mode_key=key) }}"
+                                onclick="return confirm('¿Estás seguro de que quieres ELIMINAR este modo de expiración personalizado?')"
+                                class="text-red-600 hover:text-red-800 text-sm font-medium transition-colors">
+                                <i class="fas fa-trash-alt mr-1"></i>Eliminar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="bg-white rounded-xl shadow-sm p-8 text-center border-2 border-dashed border-gray-300">
+                <div class="p-3 bg-gray-100 rounded-full inline-block mb-3">
+                    <i class="fas fa-ghost text-2xl text-gray-400"></i>
+                </div>
+                <h3 class="text-sm font-semibold text-gray-700">Sin modos personalizados</h3>
+                <p class="text-xs text-gray-500 mt-1">Crea uno nuevo usando el formulario.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}

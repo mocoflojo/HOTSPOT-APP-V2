@@ -14,17 +14,11 @@ SCRIPTS_DE_EXPIRACION = {
     "none": {
         "nombre_visible": "No Expira (Estándar)",
         "script_on_login": ""
-    },
-    "remove_on_limit": {
-        "nombre_visible": "Eliminar al Agotar 'limit-uptime'",
-        "script_on_login": ":if (([/ip hotspot user get $user limit-uptime] != 0s) && ([:len [/system scheduler find name=$user]] = 0)) do={\n    /system scheduler add name=$user start-time=([:totime [:datetime]] + [/ip hotspot user get $user limit-uptime]) interval=0s on-event=\"/ip hotspot active remove [find where user=$user] ; /ip hotspot user remove [find where name=$user] ; /log info \\\"Voucher $user eliminado por expiracion.\\\"\"\n    /log info \"Programada eliminacion para el voucher $user\"\n}"
     }
 }
 
 # --- EXTENSIONES DE ARCHIVO PERMITIDAS PARA SUBIDAS (Constante global) ---
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-
-# --- FUNCIONES PARA MANEJAR prices.json ---
 def load_prices():
     if not os.path.exists(PRICES_FILE) or os.path.getsize(PRICES_FILE) == 0:
         return {}

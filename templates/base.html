@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .sidebar {
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease;
         }
 
         .content {
@@ -24,16 +24,64 @@
             transform: translateY(-3px);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
+
+        /* Mobile: sidebar oculto por defecto */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .content {
+                margin-left: 0 !important;
+            }
+        }
+
+        /* Overlay para móvil */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
     </style>
 </head>
 
 <body class="bg-gray-100">
+    <!-- Overlay para cerrar menú en móvil -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Botón hamburguesa (solo visible en móvil) -->
+    {% if current_user.is_authenticated %}
+    <button onclick="toggleSidebar()"
+        class="md:hidden fixed top-4 left-4 z-50 bg-blue-600 text-white p-3 rounded-lg shadow-lg hover:bg-blue-700 transition-colors">
+        <i class="fas fa-bars text-xl"></i>
+    </button>
+    {% endif %}
+
     <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
         <div class="sidebar bg-white text-gray-800 shadow-lg fixed h-full z-10 w-64" id="sidebar">
-            <div class="p-4 flex items-center border-b border-gray-200">
-                <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white"><i
-                        class="fas fa-wifi text-xl"></i></div>
-                <span class="logo-text ml-3 font-bold text-lg">Mi Gestor</span>
+            <div class="p-4 flex items-center justify-between border-b border-gray-200">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                        <i class="fas fa-wifi text-xl"></i>
+                    </div>
+                    <span class="logo-text ml-3 font-bold text-lg">Mi Gestor</span>
+                </div>
+                <!-- Botón cerrar (solo visible en móvil) -->
+                <button onclick="toggleSidebar()" class="md:hidden text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
             </div>
 
             {# Mostrar info de usuario y logout si está autenticado #}
@@ -47,7 +95,7 @@
             </div>
             {% endif %}
 
-            <nav class="mt-6">
+            <nav class="mt-6 overflow-y-auto" style="max-height: calc(100vh - 200px);">
                 <div class="px-4">
                     <div class="text-xs uppercase font-semibold text-gray-500 mb-4">Principal</div>
 
@@ -96,7 +144,8 @@
             </nav>
         </div>
 
-        <div class="content flex-1 overflow-auto {% if current_user.is_authenticated %}ml-64{% else %}ml-0{% endif %}"
+        <!-- Contenido principal -->
+        <div class="content flex-1 overflow-auto {% if current_user.is_authenticated %}md:ml-64{% else %}ml-0{% endif %}"
             id="mainContent">
             <header class="bg-white shadow-sm">
                 <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
@@ -104,11 +153,33 @@
                 </div>
             </header>
 
-            <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                 {% block content %}{% endblock %}
             </main>
         </div>
     </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Cerrar menú al hacer clic en un enlace (solo en móvil)
+        document.addEventListener('DOMContentLoaded', function () {
+            const navLinks = document.querySelectorAll('.nav-item');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function () {
+                    if (window.innerWidth < 768) {
+                        toggleSidebar();
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

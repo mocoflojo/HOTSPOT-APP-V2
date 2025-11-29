@@ -115,18 +115,25 @@ def dashboard():
     }
 
     if router_info:
-        formatted_router_info['current_datetime'] = f"{router_info['current_date']} {router_info['current_time']}"
-        formatted_router_info['uptime_display'] = format_uptime_display(router_info['uptime'])
-        formatted_router_info['model'] = router_info['board_name']
-        formatted_router_info['version'] = router_info['version']
-        formatted_router_info['cpu_load'] = f"{router_info['cpu_load']}%"
-        formatted_router_info['memory_used_mb'] = f"{router_info['memory_used_mb']} MB"
-        formatted_router_info['memory_total_mb'] = f"{router_info['memory_total_mb']} MB"
-        formatted_router_info['hdd_used_mb'] = f"{router_info['hdd_used_mb']} MB"
-        formatted_router_info['hdd_total_mb'] = f"{router_info['hdd_total_mb']} MB"
-    else:
-        flash("No se pudo obtener la información completa del router MikroTik. Verifica la conexión o los permisos.", "warning")
+        formatted_router_info['current_datetime'] = f"{router_info.get('current_date', 'N/A')} {router_info.get('current_time', 'N/A')}"
+        formatted_router_info['uptime_display'] = format_uptime_display(router_info.get('uptime', '0s'))
+        formatted_router_info['model'] = router_info.get('board_name', 'N/A')
+        formatted_router_info['version'] = router_info.get('version', 'N/A')
+        formatted_router_info['cpu_load'] = f"{router_info.get('cpu-load', '0')}%"
+        
+        mem_used = int(router_info.get('free-memory', 0))
+        mem_total = int(router_info.get('total-memory', 0))
+        mem_used_mb = round((mem_total - mem_used) / (1024 * 1024), 1)
+        mem_total_mb = round(mem_total / (1024 * 1024), 1)
+        formatted_router_info['memory_used_mb'] = f"{mem_used_mb} MB"
+        formatted_router_info['memory_total_mb'] = f"{mem_total_mb} MB"
 
+        hdd_used = int(router_info.get('free-hdd-space', 0))
+        hdd_total = int(router_info.get('total-hdd-space', 0))
+        hdd_used_mb = round((hdd_total - hdd_used) / (1024 * 1024), 1)
+        hdd_total_mb = round(hdd_total / (1024 * 1024), 1)
+        formatted_router_info['hdd_used_mb'] = f"{hdd_used_mb} MB"
+        formatted_router_info['hdd_total_mb'] = f"{hdd_total_mb} MB"
 
     return render_template('dashboard.html',
                            active_users=active_users if active_users is not None else [],

@@ -13,5 +13,8 @@
     },
     "2_Horas": {
         "price": "20"
+    },
+    "60_Minutos": {
+        "price": "30"
     }
 }
