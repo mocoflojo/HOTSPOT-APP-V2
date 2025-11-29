@@ -109,6 +109,25 @@
     </div>
 </div>
 
+<!-- Charts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Daily Trend Chart -->
+    <div class="card bg-white rounded-lg shadow-sm p-4">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Tendencia de Ventas (Últimos 7 días)</h3>
+        <div class="relative h-64">
+            <canvas id="dailyTrendChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Profile Distribution Chart -->
+    <div class="card bg-white rounded-lg shadow-sm p-4">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Distribución por Perfil</h3>
+        <div class="relative h-64">
+            <canvas id="profileDistChart"></canvas>
+        </div>
+    </div>
+</div>
+
 <div class="card bg-white rounded-lg shadow-sm overflow-hidden">
     <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
         <h3 class="text-lg font-semibold text-gray-800">
@@ -124,16 +143,20 @@
             <thead class="bg-gray-50">
                 <tr>
                     <th scope="col"
-                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha y
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Fecha y
                         Hora</th>
                     <th scope="col"
-                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket /
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Ticket /
                         Usuario</th>
                     <th scope="col"
-                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Perfil
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Perfil
                     </th>
                     <th scope="col"
-                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Precio
                     </th>
                 </tr>
             </thead>
@@ -167,4 +190,76 @@
         </table>
     </div>
 </div>
+
+<!-- Chart.js Integration -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Daily Trend Chart
+        const dailyCtx = document.getElementById('dailyTrendChart').getContext('2d');
+        new Chart(dailyCtx, {
+            type: 'line',
+            data: {
+                labels: {{ daily_labels | tojson }},
+        datasets: [{
+            label: 'Ventas ($)',
+            data: {{ daily_totals | tojson }},
+        borderColor: 'rgb(59, 130, 246)',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        tension: 0.3,
+        fill: true
+                }]
+            },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function (value) {
+                        return '$' + value;
+                    }
+                }
+            }
+        }
+    }
+        });
+
+    // Profile Distribution Chart
+    const profileCtx = document.getElementById('profileDistChart').getContext('2d');
+    new Chart(profileCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ profile_labels | tojson }},
+        datasets: [{
+            data: {{ profile_totals | tojson }},
+        backgroundColor: [
+            'rgba(59, 130, 246, 0.8)',
+            'rgba(16, 185, 129, 0.8)',
+            'rgba(245, 158, 11, 0.8)',
+            'rgba(239, 68, 68, 0.8)',
+            'rgba(139, 92, 246, 0.8)',
+            'rgba(236, 72, 153, 0.8)'
+        ],
+        borderWidth: 1
+                }]
+            },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'right'
+            }
+        }
+    }
+        });
+    });
+</script>
 {% endblock %}

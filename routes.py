@@ -835,6 +835,7 @@ def upload_logo():
         return redirect(url_for('main.voucher_template_editor'))
 
 
+
 @main_bp.route('/preview_voucher_template', methods=['POST'])
 @login_required
 def preview_voucher_template():
@@ -939,6 +940,43 @@ def reports_page():
     else:
         week_change_percent = 100 if total_this_week > 0 else 0
 
+    # ===== DAILY TREND DATA (Last 7 Days) - FILTERED =====
+    daily_labels = []
+    daily_totals = []
+    for i in range(6, -1, -1):  # 6 días atrás hasta hoy
+        day = today_date - timedelta(days=i)
+        day_start = day.replace(hour=0, minute=0, second=0, microsecond=0)
+        day_end = day.replace(hour=23, minute=59, second=59, microsecond=999999)
+        
+        daily_query = Sale.query.filter(
+            Sale.date_created >= day_start,
+            Sale.date_created <= day_end
+        )
+        
+        if profile_filter:
+            daily_query = daily_query.filter(Sale.profile_name == profile_filter)
+            
+        daily_sales = daily_query.all()
+        daily_total = sum(sale.price for sale in daily_sales)
+        
+        daily_labels.append(day.strftime('%d/%m'))
+        daily_totals.append(daily_total)
+
+    # ===== PROFILE DISTRIBUTION DATA - FILTERED =====
+    if not sales_list and not (start_date_str or end_date_str or profile_filter):
+         dist_query = Sale.query.filter(func.strftime('%Y-%m', Sale.date_created) == current_month)
+         dist_sales = dist_query.all()
+    else:
+        dist_sales = sales_list
+
+    profile_sales_map = {}
+    for sale in dist_sales:
+        p_name = sale.profile_name
+        profile_sales_map[p_name] = profile_sales_map.get(p_name, 0) + sale.price
+
+    profile_labels = list(profile_sales_map.keys())
+    profile_totals = list(profile_sales_map.values())
+
     return render_template('reports.html',
                            sales_list=sales_list,
                            total_filtered=total_filtered,
@@ -947,6 +985,10 @@ def reports_page():
                            total_this_week=total_this_week,
                            total_prev_week=total_prev_week,
                            week_change_percent=week_change_percent,
+                           daily_labels=daily_labels,
+                           daily_totals=daily_totals,
+                           profile_labels=profile_labels,
+                           profile_totals=profile_totals,
                            profiles_list=profiles_list,
                            selected_start_date=start_date_str,
                            selected_end_date=end_date_str,
