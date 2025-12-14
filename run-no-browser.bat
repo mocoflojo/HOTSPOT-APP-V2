@@ -1,6 +1,7 @@
 @echo off
 REM ========================================
 REM Script para Ejecutar HOTSPOT-APP V2
+REM (Sin abrir navegador automaticamente)
 REM ========================================
 
 echo.
@@ -22,14 +23,11 @@ if exist venv\Scripts\activate.bat (
 
 echo.
 echo Servidor iniciando en: http://localhost:5000
-echo El navegador se abrira automaticamente...
 echo.
+echo Abre manualmente tu navegador en: http://localhost:5000
 echo Presiona Ctrl+C para detener el servidor
 echo ========================================
 echo.
-
-REM Abrir el navegador despues de un breve delay (en segundo plano)
-start "" cmd /c "timeout /t 3 /nobreak >nul && start http://localhost:5000"
 
 REM Ejecutar la aplicacion
 python app.py

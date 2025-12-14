@@ -138,7 +138,22 @@ Al ejecutar por primera vez, la aplicación te pedirá crear un usuario administ
 
 ## 🎮 Uso de la Aplicación
 
-### Iniciar el Servidor
+### Método 1: Usando Scripts Batch (Recomendado) ⚡
+
+**Forma más fácil - Con apertura automática del navegador:**
+```powershell
+# Doble clic en el archivo o ejecuta:
+run.bat
+```
+El navegador se abrirá automáticamente en `http://localhost:5000` después de 3 segundos.
+
+**Alternativa - Sin abrir navegador:**
+```powershell
+# Si prefieres abrir el navegador manualmente:
+run-no-browser.bat
+```
+
+### Método 2: Línea de Comandos
 
 ```powershell
 # Activar entorno virtual (si no está activo)
@@ -153,6 +168,7 @@ La aplicación estará disponible en: **http://localhost:5000**
 ### Detener el Servidor
 
 Presiona `Ctrl + C` en la terminal donde está corriendo.
+
 
 ---
 

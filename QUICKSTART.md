@@ -19,7 +19,9 @@
 
 4. **Inicia la aplicación**
    - Doble clic en `run.bat`
-   - Abre tu navegador en: http://localhost:5000
+   - **El navegador se abrirá automáticamente** en http://localhost:5000
+   - (Alternativa: usa `run-no-browser.bat` si prefieres abrir el navegador manualmente)
+
 
 ### 📋 Requisitos Previos
 
