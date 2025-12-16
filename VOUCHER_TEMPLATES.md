@@ -22,10 +22,18 @@ Plantilla ultra simple con código más grande.
 
 **Características:**
 - ✅ Diseño minimalista
-- ✅ Código PIN en tamaño extra grande (más legible)
-- ✅ Información esencial solamente
-- ✅ Precio en reverso con gradiente
-- ✅ Ideal para impresión rápida
+- ✅ Código PIN en tamaño extra grande
+- ✅ Información esencial
+
+### 3. **voucher_template_40x_eco.html** (Económica - Alta Densidad)
+Optimizada para ahorrar papel y tinta.
+
+**Características:**
+- ✅ Imprime **40 tickets por hoja** (4 columnas x 10 filas)
+- ✅ Diseño en **Blanco y Negro** (Ahorro de tinta)
+- ✅ Tamaño muy compacto (4.8cm x 2.5cm)
+- ✅ Solo información crítica: PIN/User, Tiempo, Precio, DNS
+
 
 ---
 

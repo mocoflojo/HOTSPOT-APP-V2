@@ -1,0 +1,66 @@
+<!-- PLANTILLA DE ALTA DENSIDAD: 4x10 (40 por hoja) -->
+<!-- Dimensiones optimizadas para Carta/A4 con márgenes mínimos -->
+<!-- Estilo: Ahorro de Tinta (Blanco y Negro) -->
+
+<div class="voucher-ticket bg-white border border-gray-600 rounded-sm"
+    style="width: 4.8cm; height: 2.5cm; float: left; margin: 0.1cm; page-break-inside: avoid; box-sizing: border-box; position: relative; overflow: hidden;">
+
+    <!-- Encabezado: Tiempo y Precio -->
+    <div
+        style="display: flex; justify-content: space-between; align-items: center; padding: 2px 4px; border-bottom: 1px dotted #ccc;">
+        <span style="font-size: 9px; font-weight: bold; color: #333;">
+            {% if voucher.limit_uptime_formatted %}{{ voucher.limit_uptime_formatted }}{% else %}Acceso{% endif %}
+        </span>
+        <span style="font-size: 10px; font-weight: 800; color: #000;">
+            ${{ voucher.price }}
+        </span>
+    </div>
+
+    <!-- Cuerpo: Código / PIN -->
+    <div style="text-align: center; padding-top: 1px;">
+        {% if voucher.mode == 'pin' %}
+        <!-- Modo PIN: Un solo código grande -->
+        <div style="font-size: 7px; color: #666; margin-bottom: -1px;">PIN / CÓDIGO</div>
+        <div
+            style="font-family: monospace; font-size: 17px; font-weight: 900; letter-spacing: 1px; color: #000; line-height: 1.2;">
+            {{ voucher.username }}
+        </div>
+        {% else %}
+        <!-- Modo Usuario/Pass: Dos líneas -->
+        <div
+            style="font-family: monospace; font-size: 11px; font-weight: bold; color: #000; line-height: 1.1; margin-top: 1px;">
+            <span style="font-size: 8px; color: #666;">U:</span> {{ voucher.username }}
+        </div>
+        <div style="font-family: monospace; font-size: 11px; font-weight: bold; color: #000; line-height: 1.1;">
+            <span style="font-size: 8px; color: #666;">P:</span> {{ voucher.password }}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Pie: DNS -->
+    <div style="position: absolute; bottom: 0; width: 100%; text-align: center; padding-bottom: 2px; color: #333;">
+        <div style="font-size: 7px; border-top: 1px dotted #ccc; margin: 0 4px; padding-top: 1px;">
+            Login: <strong>{{ hotspot_dns }}</strong>
+        </div>
+    </div>
+
+</div>
+
+<!-- CSS Específico para forzar el grid en impresión -->
+<style>
+    @media print {
+
+        /* Forzar márgenes pequeños en la hoja para que quepan los 40 */
+        @page {
+            margin: 0.5cm;
+            size: auto;
+            /* Dejar que la impresora decida o poner 'size: letter portrait;' */
+        }
+
+        /* Asegurar que floten correctamente */
+        .voucher-ticket {
+            float: left;
+            page-break-inside: avoid;
+        }
+    }
+</style>
