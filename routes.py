@@ -308,13 +308,20 @@ def generar_vouchers():
 
     limit_uptime_mikrotik_format = parse_limit_uptime(limit_uptime_raw)
 
-    char_set = string.digits
+    # Definir caracteres excluyendo los confusos (0, 1, l, o)
+    # Digitos seguros: 23456789
+    safe_digits = "23456789"
+    # Letras seguras: abcdefghijkmnpqrstuvwxyz (sin l, o)
+    safe_letters = "abcdefghijkmnpqrstuvwxyz"
+
+    char_set = ""
     if caracteres == 'numeros':
-        char_set = string.digits
+        char_set = safe_digits
     elif caracteres == 'letras':
-        char_set = string.ascii_lowercase
+        char_set = safe_letters
     else:
-        char_set = string.ascii_lowercase + string.digits
+        # Combinado (letras + números)
+        char_set = safe_letters + safe_digits
 
     # Revertimos a formato ISO (YYYY-MM-DD) para asegurar que el ordenamiento
     # en la lista desplegable sea siempre cronológico correcto (los más nuevos arriba).
