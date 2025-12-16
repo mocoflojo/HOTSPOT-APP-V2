@@ -325,14 +325,16 @@ def generar_vouchers():
 
     # Revertimos a formato ISO (YYYY-MM-DD) para asegurar que el ordenamiento
     # en la lista desplegable sea siempre cronológico correcto (los más nuevos arriba).
-    date_str = datetime.now().strftime('%Y-%m-%d')
+    # AÑADIDO: Incluimos Hora y Minuto para diferenciar lotes generados el mismo día
+    # NOTA: Esto se calcula UNA sola vez antes del bucle, por lo que todo el lote tendrá la misma hora exacta.
+    date_str = datetime.now().strftime('%Y-%m-%d %H:%M')
     
     # Construcción inteligente del comentario del lote
     if comment_lote:
-        # Si hay comentario manual: "MiComentario - 2025-12-16 [40]"
+        # Si hay comentario manual: "MiComentario - 2025-12-16 15:30 [40]"
         final_comment = f"{comment_lote} - {date_str} [{cantidad}]"
     else:
-        # Automático: "2025-12-16 [1-HORA] [40]"
+        # Automático: "2025-12-16 15:30 [1-HORA] [40]"
         final_comment = f"{date_str} [{perfil}] [{cantidad}]"
 
     for _ in range(cantidad):
