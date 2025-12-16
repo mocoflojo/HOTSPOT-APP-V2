@@ -281,7 +281,14 @@ def generate_page():
         return render_template('error_conexion.html', message="No se pudo conectar con el router. Verifica la configuración o la conexión.")
 
     profiles = get_hotspot_profiles()
-    return render_template('generate.html', profiles=profiles, active_page='generate')
+    
+    # Verificar si venimos de generar un lote
+    last_batch_comment = request.args.get('last_batch_comment')
+    
+    return render_template('generate.html', 
+                           profiles=profiles, 
+                           active_page='generate',
+                           last_batch_comment=last_batch_comment)
 
 @main_bp.route('/generar_vouchers', methods=['POST'])
 @login_required
@@ -309,8 +316,17 @@ def generar_vouchers():
     else:
         char_set = string.ascii_lowercase + string.digits
 
+    # Revertimos a formato ISO (YYYY-MM-DD) para asegurar que el ordenamiento
+    # en la lista desplegable sea siempre cronológico correcto (los más nuevos arriba).
     date_str = datetime.now().strftime('%Y-%m-%d')
-    final_comment = f"{comment_lote} - {date_str}" if comment_lote else date_str
+    
+    # Construcción inteligente del comentario del lote
+    if comment_lote:
+        # Si hay comentario manual: "MiComentario - 2025-12-16 [40]"
+        final_comment = f"{comment_lote} - {date_str} [{cantidad}]"
+    else:
+        # Automático: "2025-12-16 [1-HORA] [40]"
+        final_comment = f"{date_str} [{perfil}] [{cantidad}]"
 
     for _ in range(cantidad):
         params = {
@@ -332,8 +348,12 @@ def generar_vouchers():
             params['limit-uptime'] = limit_uptime_mikrotik_format
 
         add_hotspot_user(**params)
+        
+    flash(f"Se generaron {cantidad} vouchers exitosamente.", "success")
 
-    return redirect(url_for('main.generate_page'))
+    # Redirigimos pasando el comentario del lote recién creado como parámetro
+    # Esto nos permitirá mostrar un botón de "Imprimir Lote" en la página de destino
+    return redirect(url_for('main.generate_page', last_batch_comment=final_comment))
 
 @main_bp.route('/create_manual_user', methods=['POST'])
 @login_required
@@ -400,6 +420,19 @@ def list_users():
         filtered_users_list = [user for user in filtered_users_list if user.get('comment') == comment_filter]
     if search_query:
         filtered_users_list = [user for user in filtered_users_list if search_query.lower() in user.get('name', '').lower()]
+
+    # ORDENAMIENTO: Mostrar los usuarios más nuevos primero
+    # MikroTik devuelve los IDs en formato *1, *2, etc. Al ordenar inversamente conseguimos que los últimos creados queden arriba.
+    # Usamos una función lambda segura que maneja IDs no estándar por si acaso.
+    try:
+        filtered_users_list.sort(key=lambda x: int(x.get('.id', '*0').replace('*', ''), 16) if x.get('.id', '').startswith('*') else 0, reverse=True)
+    except Exception:
+        # Si falla el ordenamiento por ID hexadecimal, simplemente invertimos la lista (fallback)
+        filtered_users_list.reverse()
+
+    # Ordenar los comentarios en orden descendente (los lotes más nuevos suelen tener comentarios lexicográficamente mayores o simplemente queremos ver los últimos creados)
+    # Si los comentarios son fechas o números de lote, 'reverse=True' ayuda.
+    comments.sort(reverse=True)
 
     return render_template(
         'users.html',
