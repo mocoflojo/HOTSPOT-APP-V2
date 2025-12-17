@@ -1,0 +1,140 @@
+========================================
+  CLONAR CON GIT GUI (SIN COMANDOS)
+  Solución cuando "git" no se reconoce
+========================================
+
+PROBLEMA:
+========================================
+Git instalado pero comando "git" no funciona
+Error: "git no se reconoce como comando interno"
+
+SOLUCIÓN: USAR GIT GUI (INTERFAZ GRÁFICA)
+========================================
+
+PASO 1: ABRIR GIT GUI
+========================================
+
+Opción A - Buscar en Windows:
+1. Presiona: Windows
+2. Escribe: "Git GUI"
+3. Click en: "Git GUI"
+
+Opción B - Menú Inicio:
+1. Click en Inicio
+2. Busca carpeta: "Git"
+3. Click en: "Git GUI"
+
+PASO 2: CLONAR REPOSITORIO
+========================================
+
+1. En Git GUI, click en:
+   "Clone Existing Repository"
+
+2. Llenar el formulario:
+
+   Source Location (Origen):
+   https://github.com/mocoflojo/HOTSPOT-APP-V2.git
+
+   Target Directory (Destino):
+   C:\Users\TuUsuario\Desktop\HOTSPOT-APP-V2
+
+   NOTA: Reemplaza "TuUsuario" con tu nombre de usuario
+
+3. Click en: "Clone"
+
+4. Espera a que termine (1-2 minutos)
+
+5. Verás: "Clone completed successfully"
+
+6. Click en: "Close"
+
+PASO 3: VERIFICAR
+========================================
+
+1. Abre el Explorador de Windows
+2. Ve a: C:\Users\TuUsuario\Desktop
+3. Deberías ver la carpeta: HOTSPOT-APP-V2
+
+PASO 4: INSTALAR LA APLICACIÓN
+========================================
+
+1. Abre la carpeta: HOTSPOT-APP-V2
+2. Doble click en: install.bat
+3. Sigue las instrucciones en pantalla
+
+========================================
+ALTERNATIVA: DESCARGAR ZIP
+========================================
+
+Si Git GUI tampoco funciona:
+
+1. Abre navegador
+2. Ve a: https://github.com/mocoflojo/HOTSPOT-APP-V2
+3. Click en botón verde "Code"
+4. Click en "Download ZIP"
+5. Descomprime el archivo
+6. Doble click en install.bat
+
+========================================
+ARREGLAR EL COMANDO "git"
+========================================
+
+Si quieres que funcione el comando "git":
+
+1. Cierra PowerShell/CMD
+2. Abre PowerShell/CMD de nuevo
+3. Prueba: git --version
+
+Si aún no funciona:
+
+1. Busca en Windows: "Variables de entorno"
+2. Click en "Editar las variables de entorno del sistema"
+3. Click en "Variables de entorno"
+4. En "Variables del sistema", busca "Path"
+5. Click en "Editar"
+6. Verifica que esté:
+   C:\Program Files\Git\cmd
+
+Si no está:
+7. Click en "Nuevo"
+8. Agrega: C:\Program Files\Git\cmd
+9. Click en "Aceptar" en todo
+10. Reinicia PowerShell/CMD
+
+========================================
+ACTUALIZAR EN EL FUTURO
+========================================
+
+Con Git GUI:
+
+1. Abre Git GUI
+2. Click en "Open Existing Repository"
+3. Selecciona: C:\Users\TuUsuario\Desktop\HOTSPOT-APP-V2
+4. Menú: Remote → Fetch from → origin
+5. Menú: Merge → Local Merge
+6. Cierra Git GUI
+7. Ejecuta: run.bat
+
+O simplemente:
+- Doble click en: update.bat
+  (Si el comando git funciona)
+
+========================================
+RESUMEN
+========================================
+
+✅ Git instalado pero comando no funciona
+✅ Usa Git GUI (interfaz gráfica)
+✅ No necesitas comandos
+✅ Clonar → Install.bat → Run.bat
+
+========================================
+CONTACTO
+========================================
+
+Si tienes problemas, envía captura de pantalla.
+
+========================================
+Versión: 2.1.0
+Fecha: Diciembre 2025
+========================================

@@ -1,0 +1,89 @@
+========================================
+  HOTSPOT-APP V2.1 - Guía Rápida
+========================================
+
+INSTALACIÓN INICIAL (Solo Primera Vez)
+========================================
+
+1. Instalar Python:
+   - Descargar de: https://www.python.org/downloads/
+   - IMPORTANTE: Marcar "Add Python to PATH"
+
+2. Descargar la aplicación:
+   - Opción A (Con Git):
+     git clone https://github.com/mocoflojo/HOTSPOT-APP-V2.git
+   
+   - Opción B (Sin Git):
+     Descargar ZIP desde GitHub y descomprimir
+
+3. Instalar:
+   - Doble click en: install.bat
+   - Seguir instrucciones en pantalla
+
+4. Ejecutar:
+   - Doble click en: run.bat
+   - Abrir navegador en: http://localhost:5000
+
+========================================
+ACTUALIZACIÓN (Cuando haya nueva versión)
+========================================
+
+1. Doble click en: update.bat
+2. Esperar 1-2 minutos
+3. ¡Listo!
+
+NOTA: Tus datos NO se pierden al actualizar
+
+========================================
+USO DIARIO
+========================================
+
+Ejecutar aplicación:
+- Doble click en: run.bat
+
+Detener aplicación:
+- Presionar Ctrl+C en la terminal
+
+========================================
+ARCHIVOS IMPORTANTES
+========================================
+
+run.bat         → Ejecutar aplicación
+update.bat      → Actualizar aplicación
+install.bat     → Instalador (solo primera vez)
+
+instance/       → TU BASE DE DATOS (no borrar)
+app_data/       → Tus configuraciones (no borrar)
+
+========================================
+SOLUCIÓN DE PROBLEMAS
+========================================
+
+Error: "Python no está instalado"
+→ Instalar Python y marcar "Add to PATH"
+
+Error: "Git no está instalado"
+→ Instalar Git desde: https://git-scm.com/download/win
+
+Error: "No se puede conectar al router"
+→ Verificar IP, usuario y contraseña del router
+→ Verificar que API esté habilitado en MikroTik
+
+========================================
+BACKUP DE DATOS
+========================================
+
+Hacer backup regularmente:
+copy instance\users.db instance\users.db.backup
+
+========================================
+CONTACTO
+========================================
+
+Para soporte técnico, contacta al administrador
+con la descripción del problema y captura de pantalla.
+
+========================================
+Versión: 2.1.0
+Sistema: Windows 10/11
+========================================

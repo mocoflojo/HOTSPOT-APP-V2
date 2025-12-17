@@ -1,0 +1,121 @@
+========================================
+  INSTALACIÓN RÁPIDA - HOTSPOT-APP V2.1
+  Para Cliente con Windows 10
+========================================
+
+REQUISITOS PREVIOS:
+========================================
+✅ Git instalado (ya lo tienes)
+✅ Python instalado (descargar de python.org)
+
+PASO 1: ABRIR POWERSHELL O CMD
+========================================
+1. Presiona: Windows + R
+2. Escribe: powershell
+3. Presiona: Enter
+
+PASO 2: IR AL ESCRITORIO (O DONDE QUIERAS)
+========================================
+cd C:\Users\TuNombreDeUsuario\Desktop
+
+NOTA: Reemplaza "TuNombreDeUsuario" con tu usuario de Windows
+
+PASO 3: CLONAR EL REPOSITORIO (NO NECESITA LOGIN)
+========================================
+git clone https://github.com/mocoflojo/HOTSPOT-APP-V2.git
+
+IMPORTANTE: NO te pedirá usuario ni contraseña
+            El repositorio es PÚBLICO
+
+PASO 4: ENTRAR A LA CARPETA
+========================================
+cd HOTSPOT-APP-V2
+
+PASO 5: INSTALAR LA APLICACIÓN
+========================================
+install.bat
+
+Sigue las instrucciones en pantalla:
+- Ingresa IP del router MikroTik
+- Ingresa usuario del router
+- Ingresa contraseña del router
+- Crea tu usuario administrador
+
+PASO 6: EJECUTAR LA APLICACIÓN
+========================================
+run.bat
+
+La aplicación se abrirá en tu navegador:
+http://localhost:5000
+
+========================================
+ACTUALIZAR EN EL FUTURO
+========================================
+
+Cuando haya una nueva versión:
+
+1. Doble click en: update.bat
+2. Espera 1-2 minutos
+3. ¡Listo!
+
+NOTA: NO necesitas login para actualizar
+      El repositorio es público
+
+========================================
+SOLUCIÓN DE PROBLEMAS
+========================================
+
+Error: "git no se reconoce como comando"
+→ Reinicia PowerShell después de instalar Git
+
+Error: "python no se reconoce como comando"
+→ Instala Python y marca "Add to PATH"
+
+Error: "No se puede conectar al router"
+→ Verifica IP, usuario y contraseña del router
+
+========================================
+COMANDOS COMPLETOS (COPIAR Y PEGAR)
+========================================
+
+# Ir al escritorio
+cd C:\Users\TuNombreDeUsuario\Desktop
+
+# Clonar repositorio (NO pide login)
+git clone https://github.com/mocoflojo/HOTSPOT-APP-V2.git
+
+# Entrar a la carpeta
+cd HOTSPOT-APP-V2
+
+# Instalar
+install.bat
+
+# Ejecutar
+run.bat
+
+========================================
+¿NECESITO CUENTA DE GITHUB?
+========================================
+
+NO ❌
+
+El repositorio es PÚBLICO, puedes:
+- Clonar sin login
+- Actualizar sin login
+- Usar la aplicación sin login
+
+Solo necesitarías cuenta si quisieras:
+- Hacer cambios en el código
+- Subir modificaciones
+
+========================================
+CONTACTO
+========================================
+
+Si tienes problemas, contacta al soporte
+con captura de pantalla del error.
+
+========================================
+Versión: 2.1.0
+Fecha: Diciembre 2025
+========================================
