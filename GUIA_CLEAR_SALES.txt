@@ -1,0 +1,219 @@
+========================================
+  GUÍA: LIMPIAR VENTAS
+  clear_sales.py - Versión Multi-Router
+========================================
+
+DESCRIPCIÓN:
+========================================
+Script para limpiar ventas de la base de datos.
+Soporta multi-router: puede limpiar ventas de
+un router específico o de todos los routers.
+
+CUÁNDO USAR:
+========================================
+
+✅ Cambio de router MikroTik
+✅ Ventas de prueba que quieres eliminar
+✅ Empezar reportes desde cero
+✅ Limpiar ventas de un router específico
+✅ Eliminar ventas antiguas (legacy)
+
+CÓMO USAR:
+========================================
+
+1. Abre PowerShell o CMD
+2. Ve a la carpeta de la aplicación:
+   cd C:\Users\Usuario\Desktop\HOTSPOT-APP-V2
+3. Ejecuta:
+   python clear_sales.py
+
+OPCIONES DISPONIBLES:
+========================================
+
+OPCIÓN 1: Eliminar ventas de un router específico
+--------------------------------------------------
+- Muestra lista de routers
+- Seleccionas el router
+- Elimina solo las ventas de ese router
+- Ventas de otros routers se mantienen
+
+Ejemplo:
+Router A: 100 ventas
+Router B: 50 ventas
+Eliminas Router A → Quedan 50 ventas (Router B)
+
+OPCIÓN 2: Eliminar TODAS las ventas
+------------------------------------
+- Elimina ventas de TODOS los routers
+- Reportes empiezan desde cero
+- Usuarios de login se mantienen
+- Routers configurados se mantienen
+
+Ejemplo:
+Router A: 100 ventas
+Router B: 50 ventas
+Eliminas todas → Quedan 0 ventas
+
+OPCIÓN 3: Eliminar ventas sin router (legacy)
+----------------------------------------------
+- Elimina ventas antiguas sin router asignado
+- Son ventas de antes de multi-router
+- No afecta ventas actuales
+
+OPCIÓN 4: Salir
+---------------
+- Sale del script sin hacer cambios
+
+EJEMPLO DE USO:
+========================================
+
+C:\...\HOTSPOT-APP-V2> python clear_sales.py
+
+============================================
+🗑️  LIMPIADOR DE VENTAS - HOTSPOT-APP V2.1
+============================================
+
+============================================
+📊 VENTAS POR ROUTER
+============================================
+
+🟢 Activo Router: Router Principal
+   IP: 192.168.88.1
+   Ventas: 150
+
+⚪ Inactivo Router: Router Sucursal
+   IP: 192.168.88.2
+   Ventas: 75
+
+--------------------------------------------
+📈 TOTAL DE VENTAS: 225
+============================================
+
+OPCIONES:
+1. Eliminar ventas de un router específico
+2. Eliminar TODAS las ventas de TODOS los routers
+3. Eliminar ventas sin router asignado (legacy)
+4. Salir
+
+Selecciona una opción (1-4): 1
+
+Routers disponibles:
+1. Router Principal (192.168.88.1) - 150 ventas
+2. Router Sucursal (192.168.88.2) - 75 ventas
+
+Selecciona el número del router: 1
+
+⚠️  ADVERTENCIA: Esto eliminará 150 ventas del router:
+   Router: Router Principal
+   IP: 192.168.88.1
+
+¿Deseas continuar? (si/no): si
+
+✅ ¡Ventas del router 'Router Principal' eliminadas!
+   - 150 ventas fueron eliminadas
+   - Ventas de otros routers se mantienen intactas
+
+QUÉ SE MANTIENE:
+========================================
+
+Al limpiar ventas, NO se pierden:
+✅ Usuarios de login
+✅ Routers configurados
+✅ Configuración (config.ini)
+✅ Precios
+✅ Plantillas
+
+Solo se eliminan:
+❌ Ventas seleccionadas
+
+CASOS DE USO:
+========================================
+
+CASO 1: Cambio de Router
+-------------------------
+Problema: Cambié de router, quiero empezar reportes
+          desde cero pero mantener la configuración.
+
+Solución:
+1. python clear_sales.py
+2. Opción 2 (Eliminar todas)
+3. Confirmar
+4. ¡Listo! Reportes desde cero
+
+CASO 2: Ventas de Prueba
+-------------------------
+Problema: Hice ventas de prueba en Router A,
+          quiero eliminarlas sin afectar Router B.
+
+Solución:
+1. python clear_sales.py
+2. Opción 1 (Router específico)
+3. Seleccionar Router A
+4. Confirmar
+5. ¡Listo! Solo Router A limpio
+
+CASO 3: Ventas Antiguas
+------------------------
+Problema: Tengo ventas antiguas sin router asignado
+          de antes de multi-router.
+
+Solución:
+1. python clear_sales.py
+2. Opción 3 (Legacy)
+3. Confirmar
+4. ¡Listo! Ventas antiguas eliminadas
+
+SEGURIDAD:
+========================================
+
+✅ Siempre pide confirmación antes de eliminar
+✅ Muestra cuántas ventas se eliminarán
+✅ Muestra qué router se afectará
+✅ Opción de cancelar en cualquier momento
+
+BACKUP (Recomendado):
+========================================
+
+Antes de limpiar ventas, haz backup:
+
+copy instance\users.db instance\users.db.backup
+
+Si algo sale mal:
+copy instance\users.db.backup instance\users.db
+
+SOLUCIÓN DE PROBLEMAS:
+========================================
+
+Error: "ModuleNotFoundError"
+→ Activa el entorno virtual:
+  .\venv\Scripts\Activate.ps1
+  python clear_sales.py
+
+Error: "No se encontró la base de datos"
+→ Verifica que estés en la carpeta correcta
+→ Debe existir: instance\users.db
+
+Error al eliminar ventas:
+→ Cierra la aplicación (run.bat)
+→ Ejecuta clear_sales.py de nuevo
+
+VERIFICAR RESULTADO:
+========================================
+
+Después de limpiar ventas:
+
+1. Ejecuta: run.bat
+2. Abre: http://localhost:5000
+3. Ve a: Reportes
+4. Verifica: Ventas en $0 o según lo esperado
+
+CONTACTO:
+========================================
+
+Si tienes problemas, contacta al soporte
+con captura de pantalla del error.
+
+========================================
+Versión: 2.1.0
+Fecha: Diciembre 2025
+========================================

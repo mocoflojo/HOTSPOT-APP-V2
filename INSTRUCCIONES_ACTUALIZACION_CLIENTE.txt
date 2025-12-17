@@ -1,0 +1,153 @@
+========================================
+  INSTRUCCIONES PARA ACTUALIZAR
+  Cliente - Versión 2.1.0
+========================================
+
+¡HAY UNA NUEVA ACTUALIZACIÓN DISPONIBLE!
+
+CAMBIOS EN ESTA ACTUALIZACIÓN:
+========================================
+
+✅ Compatibilidad total con config.ini
+✅ Soporta formato antiguo y nuevo
+✅ Permite contraseñas vacías
+✅ Guías completas de actualización
+✅ Sistema de actualización mejorado
+
+CÓMO ACTUALIZAR:
+========================================
+
+OPCIÓN 1: Con update.bat (Si git funciona)
+-------------------------------------------
+1. Abre la carpeta: HOTSPOT-APP-V2
+2. Doble click en: update.bat
+3. Espera 1-2 minutos
+4. ¡Listo!
+
+OPCIÓN 2: Con Git Bash (Si git no funciona en CMD)
+---------------------------------------------------
+1. Busca en Windows: "Git Bash"
+2. Abre Git Bash
+3. Ejecuta:
+   cd /c/Users/TuUsuario/Desktop/HOTSPOT-APP-V2
+   git pull origin feature/responsive-sidebar
+4. Cierra Git Bash
+5. Doble click en: run.bat
+
+OPCIÓN 3: Con Git GUI (Visual)
+-------------------------------
+1. Busca en Windows: "Git GUI"
+2. Abre Git GUI
+3. Click en: "Open Existing Repository"
+4. Selecciona: C:\Users\TuUsuario\Desktop\HOTSPOT-APP-V2
+5. Menú: Remote → Fetch from → origin
+6. Menú: Merge → Local Merge
+7. Selecciona: origin/feature/responsive-sidebar
+8. Click en "Merge"
+9. Cierra Git GUI
+10. Doble click en: run.bat
+
+VERIFICAR QUE FUNCIONÓ:
+========================================
+
+Después de actualizar, busca estos archivos NUEVOS:
+
+✅ PRUEBA_ACTUALIZACION.txt
+✅ CONFIGURAR_CONFIG_INI.txt
+✅ ACTUALIZAR_CON_GIT_GUI.txt
+✅ CLONAR_VS_ACTUALIZAR.md
+✅ INSTRUCCIONES_PRUEBA_UPDATE.txt
+
+Si los ves: ¡Actualización exitosa!
+
+PROBAR LA APLICACIÓN:
+========================================
+
+1. Doble click en: run.bat
+2. Abre navegador: http://localhost:5000
+3. Login con tus credenciales
+4. Verifica que todo funcione:
+   ✅ Dashboard carga
+   ✅ Usuarios se ven
+   ✅ Reportes funcionan
+   ✅ Tus datos están intactos
+
+TUS DATOS ESTÁN SEGUROS:
+========================================
+
+Al actualizar, NO se pierden:
+✅ Base de datos (usuarios, routers, ventas)
+✅ Configuración del router (config.ini)
+✅ Precios configurados
+✅ Plantillas personalizadas
+
+Solo se actualizan:
+✅ Código de la aplicación
+✅ Nuevas funcionalidades
+✅ Correcciones de errores
+
+SOLUCIÓN DE PROBLEMAS:
+========================================
+
+Error: "git no se reconoce como comando"
+→ Usa Git Bash (Opción 2)
+→ O Git GUI (Opción 3)
+→ O reinicia la PC y prueba update.bat
+
+Error: "No se pudo actualizar"
+→ Verifica conexión a internet
+→ Contacta al soporte con captura de pantalla
+
+Error al iniciar la app después de actualizar:
+→ Verifica config.ini (ver CONFIGURAR_CONFIG_INI.txt)
+→ Contacta al soporte
+
+ARCHIVOS DE AYUDA:
+========================================
+
+Después de actualizar, tendrás estas guías:
+
+📄 CONFIGURAR_CONFIG_INI.txt
+   → Cómo configurar config.ini
+
+📄 ACTUALIZAR_CON_GIT_GUI.txt
+   → Actualizar con interfaz gráfica
+
+📄 CLONAR_VS_ACTUALIZAR.md
+   → Diferencias entre clonar y actualizar
+
+📄 LEEME.txt
+   → Guía rápida general
+
+📄 GUIA_CLIENTE.md
+   → Guía completa de instalación
+
+RESUMEN RÁPIDO:
+========================================
+
+1. Ejecutar: update.bat
+   (O Git Bash / Git GUI si no funciona)
+
+2. Esperar: 1-2 minutos
+
+3. Verificar: PRUEBA_ACTUALIZACION.txt existe
+
+4. Ejecutar: run.bat
+
+5. Probar: http://localhost:5000
+
+6. ¡Listo!
+
+CONTACTO:
+========================================
+
+Si tienes problemas:
+1. Toma captura de pantalla del error
+2. Contacta al soporte técnico
+3. Envía la captura
+
+========================================
+Versión: 2.1.0
+Fecha: 17 de Diciembre 2025
+Actualización: Fix compatibilidad config.ini
+========================================
