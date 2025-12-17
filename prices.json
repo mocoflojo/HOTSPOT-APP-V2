@@ -12,9 +12,24 @@
         "price": "10"
     },
     "2_Horas": {
-        "price": "20"
+        "price": "2000"
     },
     "60_Minutos": {
         "price": "30"
+    },
+    "1_Hora": {
+        "price": "2000"
+    },
+    "30_Dias": {
+        "price": "5000"
+    },
+    "test": {
+        "price": "10000"
+    },
+    "1_Semana": {
+        "price": "30000"
+    },
+    "1_Mes": {
+        "price": "40000"
     }
 }

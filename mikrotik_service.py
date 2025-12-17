@@ -3,16 +3,55 @@ import sys
 import re
 from config import ROUTER_IP, ROUTER_USER, ROUTER_PASSWORD
 
-def get_api_connection():
+def get_api_connection(router=None):
     """
     Establece y devuelve una conexión a la API del router MikroTik.
+    
+    Args:
+        router: Objeto Router o None. Si es None, usa el router activo de la sesión.
+    
     Devuelve None si la conexión falla.
     """
     try:
+        # Si no se proporciona un router, intentar obtener el activo
+        if router is None:
+            try:
+                from flask import session, has_request_context
+                from database import Router
+                
+                # Solo intentar obtener de sesión si estamos en un contexto de request
+                if has_request_context():
+                    router_id = session.get('active_router_id')
+                    if router_id:
+                        router = Router.query.get(router_id)
+                    
+                    # Si no hay en sesión, usar el router por defecto
+                    if not router:
+                        router = Router.query.filter_by(is_default=True, is_active=True).first()
+                    
+                    # Si no hay default, usar el primero activo
+                    if not router:
+                        router = Router.query.filter_by(is_active=True).first()
+            except Exception as e:
+                # Si falla la importación o query, usar config.ini como fallback
+                print(f"⚠️  Usando configuración de config.ini como fallback: {e}", file=sys.stderr)
+                router = None
+        
+        # Si tenemos un objeto router, usar sus credenciales
+        if router and hasattr(router, 'ip'):
+            ip = router.ip
+            username = router.username
+            password = router.password
+        else:
+            # Fallback a config.ini
+            ip = ROUTER_IP
+            username = ROUTER_USER
+            password = ROUTER_PASSWORD
+        
         connection = routeros_api.RouterOsApiPool(
-            ROUTER_IP,
-            username=ROUTER_USER,
-            password=ROUTER_PASSWORD,
+            ip,
+            username=username,
+            password=password,
             plaintext_login=True
         )
         api = connection.get_api()

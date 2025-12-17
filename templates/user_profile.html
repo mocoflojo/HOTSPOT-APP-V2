@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi Perfil{% endblock %}
+
+{% block page_title %}Mi Perfil{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <!-- Card de Información del Usuario -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-4">
+            <div class="flex items-center">
+                <div class="p-3 bg-blue-500 rounded-full mr-4">
+                    <i class="fas fa-user text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold">Información del Usuario</h2>
+                    <p class="text-blue-100 text-sm">Gestiona tu cuenta y configuración</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-6">
+            <div class="space-y-4">
+                <div class="flex items-center justify-between bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
+                    <div class="flex items-center">
+                        <i class="fas fa-user-circle text-blue-600 text-2xl mr-3"></i>
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase font-semibold">Usuario</p>
+                            <p class="text-lg font-bold text-gray-800">{{ current_user.username }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                {% if active_router %}
+                <div class="flex items-center justify-between bg-green-50 rounded-lg p-4 border-2 border-green-200">
+                    <div class="flex items-center">
+                        <i class="fas fa-server text-green-600 text-2xl mr-3"></i>
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase font-semibold">Router Activo</p>
+                            <p class="text-lg font-bold text-gray-800">{{ active_router.name }}</p>
+                            <p class="text-sm text-gray-600">{{ active_router.ip }}</p>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('routers.list_routers') }}"
+                        class="text-green-600 hover:text-green-800 font-semibold text-sm">
+                        <i class="fas fa-cog mr-1"></i>Gestionar
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Card de Cambio de Contraseña -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-4">
+            <div class="flex items-center">
+                <div class="p-3 bg-orange-400 rounded-full mr-4">
+                    <i class="fas fa-key text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold">Cambiar Contraseña</h2>
+                    <p class="text-orange-100 text-sm">Actualiza tu contraseña de acceso</p>
+                </div>
+            </div>
+        </div>
+
+        <form action="{{ url_for('main.change_password') }}" method="POST" class="p-6">
+            <div class="space-y-4">
+                <!-- Contraseña Actual -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-lock text-gray-500 mr-1"></i>Contraseña Actual
+                    </label>
+                    <input type="password" name="current_password" required
+                        class="w-full border-2 border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        placeholder="Ingresa tu contraseña actual">
+                </div>
+
+                <!-- Nueva Contraseña -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-key text-gray-500 mr-1"></i>Nueva Contraseña
+                    </label>
+                    <input type="password" name="new_password" required minlength="4"
+                        class="w-full border-2 border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        placeholder="Ingresa tu nueva contraseña">
+                    <p class="mt-1 text-xs text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i>Mínimo 4 caracteres
+                    </p>
+                </div>
+
+                <!-- Confirmar Nueva Contraseña -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-check-circle text-gray-500 mr-1"></i>Confirmar Nueva Contraseña
+                    </label>
+                    <input type="password" name="confirm_password" required minlength="4"
+                        class="w-full border-2 border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        placeholder="Confirma tu nueva contraseña">
+                </div>
+
+                <!-- Botones -->
+                <div class="flex gap-3 pt-4 border-t-2">
+                    <button type="submit"
+                        class="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform transition hover:scale-105">
+                        <i class="fas fa-save mr-2"></i>Cambiar Contraseña
+                    </button>
+                    <a href="{{ url_for('main.dashboard') }}"
+                        class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-lg text-center transition-colors">
+                        <i class="fas fa-times mr-2"></i>Cancelar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Información de Seguridad -->
+    <div class="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-shield-alt text-blue-500 text-xl"></i>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-semibold text-blue-800">Consejos de Seguridad</h3>
+                <div class="mt-2 text-sm text-blue-700">
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Usa una contraseña segura y única</li>
+                        <li>No compartas tu contraseña con nadie</li>
+                        <li>Cambia tu contraseña periódicamente</li>
+                        <li>No uses la contraseña por defecto (admin)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -53,6 +53,15 @@
         .sidebar-overlay.active {
             display: block;
         }
+
+        /* Rotación suave del chevron */
+        #routerChevron {
+            transition: transform 0.3s ease;
+        }
+
+        #routerChevron.rotate-180 {
+            transform: rotate(180deg);
+        }
     </style>
 </head>
 
@@ -86,12 +95,18 @@
 
             {# Mostrar info de usuario y logout si está autenticado #}
             {% if current_user.is_authenticated %}
-            <div class="p-4 border-b border-gray-200 text-center">
-                <p class="font-semibold text-gray-800">Bienvenido, {{ current_user.username }}</p>
-                <a href="{{ url_for('auth.logout') }}"
-                    class="mt-2 inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200">
-                    <i class="fas fa-sign-out-alt mr-2"></i> Cerrar Sesión
-                </a>
+            <div class="p-4 border-b border-gray-200">
+                <p class="font-semibold text-gray-800 text-center mb-3">Bienvenido, {{ current_user.username }}</p>
+                <div class="flex gap-2">
+                    <a href="{{ url_for('main.user_profile') }}"
+                        class="flex-1 inline-flex items-center justify-center px-3 py-2 border border-blue-600 text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors">
+                        <i class="fas fa-user-cog mr-2"></i>Perfil
+                    </a>
+                    <a href="{{ url_for('auth.logout') }}"
+                        class="flex-1 inline-flex items-center justify-center px-3 py-2 border border-red-600 text-sm font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100 transition-colors">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Salir
+                    </a>
+                </div>
             </div>
             {% endif %}
 
@@ -129,6 +144,12 @@
                         class="nav-item flex items-center py-3 px-4 rounded-lg hover:bg-gray-100 mt-1 {% if active_page == 'reports' %}bg-blue-50 text-blue-600{% endif %}">
                         <i class="fas fa-chart-line"></i><span class="nav-text ml-3">Reportes</span>
                     </a>
+
+                    <div class="text-xs uppercase font-semibold text-gray-500 mb-2 mt-6">Configuración</div>
+                    <a href="{{ url_for('routers.list_routers') }}"
+                        class="nav-item flex items-center py-3 px-4 rounded-lg hover:bg-gray-100 mt-1 {% if active_page == 'routers' %}bg-blue-50 text-blue-600{% endif %}">
+                        <i class="fas fa-server"></i><span class="nav-text ml-3">Gestión de Routers</span>
+                    </a>
                     {% block extra_nav_items %}{% endblock %}
                     {% else %}
                     {# Si no está autenticado, y no es la página de login/setup, sugerir login #}
@@ -148,8 +169,53 @@
         <div class="content flex-1 overflow-auto {% if current_user.is_authenticated %}md:ml-64{% else %}ml-0{% endif %}"
             id="mainContent">
             <header class="bg-white shadow-sm">
-                <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                     <h1 class="text-2xl font-semibold text-gray-900">{% block page_title %}{% endblock %}</h1>
+                    <div class="flex items-center space-x-4">
+                        {% if current_user.is_authenticated and active_router %}
+                        <!-- Selector de Router -->
+                        <div class="relative" id="routerSelectorContainer">
+                            <button id="routerSelectorBtn"
+                                class="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg border border-gray-300 transition-colors">
+                                <i class="fas fa-server text-blue-600"></i>
+                                <span class="text-sm font-medium text-gray-700">{{ active_router.name }}</span>
+                                <i class="fas fa-chevron-down text-gray-500 text-xs" id="routerChevron"></i>
+                            </button>
+                            <!-- Dropdown -->
+                            <div id="routerDropdown"
+                                class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 hidden z-50">
+                                <div class="py-2">
+                                    <div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase border-b">
+                                        Cambiar Router
+                                    </div>
+                                    {% for router in available_routers %}
+                                    <a href="{{ url_for('routers.switch_router', router_id=router.id) }}"
+                                        class="block px-4 py-2 hover:bg-gray-100 transition-colors {% if router.id == active_router.id %}bg-green-50{% endif %}">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-2">
+                                                <i
+                                                    class="fas fa-circle text-xs {% if router.id == active_router.id %}text-green-500{% else %}text-gray-400{% endif %}"></i>
+                                                <span class="text-sm font-medium text-gray-800">{{ router.name }}</span>
+                                            </div>
+                                            {% if router.id == active_router.id %}
+                                            <i class="fas fa-check text-green-600"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div class="text-xs text-gray-500 ml-5">{{ router.ip }}</div>
+                                    </a>
+                                    {% endfor %}
+                                    <div class="border-t mt-2 pt-2">
+                                        <a href="{{ url_for('routers.list_routers') }}"
+                                            class="block px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 transition-colors">
+                                            <i class="fas fa-cog mr-2"></i>Gestionar Routers
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% block header_right %}{% endblock %}
+                    </div>
                 </div>
             </header>
 
@@ -178,6 +244,41 @@
                     }
                 });
             });
+
+            // ========== DROPDOWN SELECTOR DE ROUTER ==========
+            const routerBtn = document.getElementById('routerSelectorBtn');
+            const routerDropdown = document.getElementById('routerDropdown');
+            const routerContainer = document.getElementById('routerSelectorContainer');
+            const routerChevron = document.getElementById('routerChevron');
+
+            if (routerBtn && routerDropdown) {
+                // Toggle dropdown al hacer click en el botón
+                routerBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    const isHidden = routerDropdown.classList.contains('hidden');
+
+                    if (isHidden) {
+                        routerDropdown.classList.remove('hidden');
+                        routerChevron.classList.add('rotate-180');
+                    } else {
+                        routerDropdown.classList.add('hidden');
+                        routerChevron.classList.remove('rotate-180');
+                    }
+                });
+
+                // Cerrar dropdown al hacer click fuera
+                document.addEventListener('click', function (e) {
+                    if (!routerContainer.contains(e.target)) {
+                        routerDropdown.classList.add('hidden');
+                        routerChevron.classList.remove('rotate-180');
+                    }
+                });
+
+                // Prevenir que el dropdown se cierre al hacer click dentro de él
+                routerDropdown.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                });
+            }
         });
     </script>
 </body>

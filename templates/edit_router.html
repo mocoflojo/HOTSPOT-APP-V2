@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Router{% endblock %}
+
+{% block page_title %}Editar Router{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-4">
+            <div class="flex items-center">
+                <div class="p-3 bg-blue-500 rounded-lg mr-4">
+                    <i class="fas fa-server text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold">Editar Router</h2>
+                    <p class="text-blue-100 text-sm">{{ router.name }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form action="{{ url_for('routers.edit_router', router_id=router.id) }}" method="POST" class="p-6">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">
+                        <i class="fas fa-tag text-blue-600 mr-1"></i>Nombre del Router
+                    </label>
+                    <input type="text" name="name" value="{{ router.name }}" required
+                        class="w-full border-2 border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">
+                        <i class="fas fa-network-wired text-blue-600 mr-1"></i>Dirección IP
+                    </label>
+                    <input type="text" name="ip" value="{{ router.ip }}" required
+                        class="w-full border-2 border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">
+                        <i class="fas fa-user text-blue-600 mr-1"></i>Usuario
+                    </label>
+                    <input type="text" name="username" value="{{ router.username }}" required
+                        class="w-full border-2 border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">
+                        <i class="fas fa-key text-blue-600 mr-1"></i>Contraseña
+                    </label>
+                    <input type="password" name="password" placeholder="Dejar en blanco para no cambiar"
+                        class="w-full border-2 border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <p class="mt-1 text-xs text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i>Solo ingresa una contraseña si deseas cambiarla
+                    </p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">
+                        <i class="fas fa-globe text-blue-600 mr-1"></i>Hotspot DNS
+                    </label>
+                    <input type="text" name="hotspot_dns" value="{{ router.hotspot_dns }}"
+                        class="w-full border-2 border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+
+                <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" name="is_default" {% if router.is_default %}checked{% endif %}
+                            class="mr-3 w-5 h-5">
+                        <div>
+                            <span class="text-sm font-semibold text-gray-800">
+                                <i class="fas fa-star text-yellow-500 mr-1"></i>Establecer como router por defecto
+                            </span>
+                            <p class="text-xs text-gray-600 mt-1">
+                                El router por defecto se selecciona automáticamente al iniciar sesión
+                            </p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-6 pt-6 border-t-2">
+                <button type="submit"
+                    class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform transition hover:scale-105">
+                    <i class="fas fa-save mr-2"></i>Guardar Cambios
+                </button>
+                <a href="{{ url_for('routers.list_routers') }}"
+                    class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-lg text-center transition-colors">
+                    <i class="fas fa-times mr-2"></i>Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

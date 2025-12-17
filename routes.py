@@ -1,9 +1,9 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app
+from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app, session
 from flask_login import login_required, current_user
 
 # Importar desde módulos personalizados
 from config import HOTSPOT_DNS, ConfigError
-from database import db, User, Sale
+from database import db, User, Sale, Router
 from mikrotik_service import ( # Importar servicios de MikroTik
     get_api_connection, parse_limit_uptime,
     get_hotspot_users, get_hotspot_user_by_id, add_hotspot_user, set_hotspot_user, remove_hotspot_user,
@@ -29,10 +29,67 @@ from sqlalchemy import func, extract
 
 main_bp = Blueprint('main', __name__, template_folder='templates')
 
+# ========== FUNCIONES HELPER PARA MULTI-ROUTER ==========
+
+def get_active_router():
+    """
+    Obtiene el router activo para el usuario actual.
+    Prioridad: 1) Sesión, 2) Último usado por usuario, 3) Router por defecto
+    """
+    router_id = session.get('active_router_id')
+    
+    if router_id:
+        router = Router.query.get(router_id)
+        if router and router.is_active:
+            return router
+    
+    # Si no hay en sesión, usar el último del usuario
+    if current_user.is_authenticated and current_user.last_router_id:
+        router = Router.query.get(current_user.last_router_id)
+        if router and router.is_active:
+            session['active_router_id'] = router.id
+            return router
+    
+    # Si no, usar el router por defecto
+    router = Router.query.filter_by(is_default=True, is_active=True).first()
+    if not router:
+        # Si no hay default, usar el primero activo
+        router = Router.query.filter_by(is_active=True).first()
+    
+    if router:
+        session['active_router_id'] = router.id
+    
+    return router
+
+def set_active_router(router_id):
+    """Establece el router activo en la sesión y lo guarda como último usado del usuario"""
+    router = Router.query.get(router_id)
+    if router and router.is_active:
+        session['active_router_id'] = router_id
+        if current_user.is_authenticated:
+            current_user.last_router_id = router_id
+            db.session.commit()
+        return True
+    return False
+
+def get_all_active_routers():
+    """Obtiene todos los routers activos"""
+    return Router.query.filter_by(is_active=True).order_by(Router.is_default.desc(), Router.name).all()
+
+# ========== FIN FUNCIONES HELPER MULTI-ROUTER ==========
+
+
 def check_and_record_active_sales():
     """
     Verifica los usuarios activos y registra una venta si es la primera vez que se detectan.
+    Asocia la venta con el router activo.
     """
+    # Obtener router activo
+    active_router = get_active_router()
+    if not active_router:
+        print("⚠️  No hay router activo, no se pueden registrar ventas")
+        return
+    
     active_users = get_active_hotspot_users()
     if not active_users:
         return
@@ -48,8 +105,12 @@ def check_and_record_active_sales():
         if not username:
             continue
 
-        # Verificar si ya existe una venta para este usuario
-        existing_sale = Sale.query.filter_by(ticket_code=username).first()
+        # Verificar si ya existe una venta para este usuario EN ESTE ROUTER
+        existing_sale = Sale.query.filter_by(
+            ticket_code=username,
+            router_id=active_router.id
+        ).first()
+        
         if not existing_sale:
             # Es una nueva venta!
             profile_name = user_profile_map.get(username, 'Unknown')
@@ -61,10 +122,11 @@ def check_and_record_active_sales():
                     ticket_code=username,
                     profile_name=profile_name,
                     price=price,
-                    date_created=datetime.now()
+                    date_created=datetime.now(),
+                    router_id=active_router.id  # ← Asociar con router activo
                 )
                 db.session.add(new_sale)
-                print(f"💰 Venta registrada: {username} - ${price}")
+                print(f"💰 Venta registrada en {active_router.name}: {username} - ${price}")
     
     try:
         db.session.commit()
@@ -75,19 +137,31 @@ def check_and_record_active_sales():
 @main_bp.route('/dashboard')
 @login_required
 def dashboard():
+    # Obtener router activo
+    active_router = get_active_router()
+    if not active_router:
+        flash("No hay router activo. Por favor, configura un router primero.", "danger")
+        return redirect(url_for('routers.list_routers'))
+    
     # Registrar ventas de usuarios activos
     check_and_record_active_sales()
 
-    # Calcular ventas
+    # Calcular ventas SOLO DEL ROUTER ACTIVO
     now = datetime.now()
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
-    # Ventas de hoy (Suma de precios)
-    sales_today = db.session.query(func.sum(Sale.price)).filter(Sale.date_created >= today_start).scalar() or 0
+    # Ventas de hoy (Suma de precios) - FILTRADO POR ROUTER
+    sales_today = db.session.query(func.sum(Sale.price)).filter(
+        Sale.date_created >= today_start,
+        Sale.router_id == active_router.id
+    ).scalar() or 0
     
-    # Ventas del mes (Suma de precios)
-    sales_month = db.session.query(func.sum(Sale.price)).filter(Sale.date_created >= month_start).scalar() or 0
+    # Ventas del mes (Suma de precios) - FILTRADO POR ROUTER
+    sales_month = db.session.query(func.sum(Sale.price)).filter(
+        Sale.date_created >= month_start,
+        Sale.router_id == active_router.id
+    ).scalar() or 0
 
 
 
@@ -140,7 +214,7 @@ def dashboard():
         formatted_router_info['hdd_used_mb'] = f"{router_info.get('hdd_used_mb', 0)} MB"
         formatted_router_info['hdd_total_mb'] = f"{router_info.get('hdd_total_mb', 0)} MB"
 
-    # --- Datos para el Gráfico (Últimos 7 días) ---
+    # --- Datos para el Gráfico (Últimos 7 días) - FILTRADO POR ROUTER ---
     chart_labels = []
     chart_values = []
     
@@ -152,15 +226,16 @@ def dashboard():
         
         daily_total = db.session.query(func.sum(Sale.price)).filter(
             Sale.date_created >= start_of_day,
-            Sale.date_created <= end_of_day
+            Sale.date_created <= end_of_day,
+            Sale.router_id == active_router.id  # ← FILTRADO POR ROUTER
         ).scalar() or 0
         
         # Etiqueta: Solo día/mes (ej. 17/12)
         chart_labels.append(date_point.strftime("%d/%m"))
         chart_values.append(float(daily_total))
 
-    # --- Actividad Reciente (Últimas 5 ventas) ---
-    recent_sales = Sale.query.order_by(Sale.date_created.desc()).limit(5).all()
+    # --- Actividad Reciente (Últimas 5 ventas) - FILTRADO POR ROUTER ---
+    recent_sales = Sale.query.filter_by(router_id=active_router.id).order_by(Sale.date_created.desc()).limit(5).all()
 
     # --- Perfiles (Para el modal de creación rápida) ---
     all_profiles = get_hotspot_profiles()
@@ -949,6 +1024,12 @@ def preview_voucher_template():
 @main_bp.route('/reports')
 @login_required
 def reports_page():
+    # Obtener router activo
+    active_router = get_active_router()
+    if not active_router:
+        flash("No hay router activo. Por favor, configura un router primero.", "danger")
+        return redirect(url_for('routers.list_routers'))
+    
     # Asegurar que las ventas estén actualizadas
     check_and_record_active_sales()
 
@@ -957,8 +1038,8 @@ def reports_page():
     end_date_str = request.args.get('end_date')
     profile_filter = request.args.get('profile')
 
-    # Construir la consulta base
-    query = Sale.query
+    # Construir la consulta base - FILTRADO POR ROUTER
+    query = Sale.query.filter_by(router_id=active_router.id)
 
     # Aplicar filtros
     if start_date_str:
@@ -989,20 +1070,28 @@ def reports_page():
     # Calcular totales
     total_filtered = sum(sale.price for sale in sales_list)
 
-    # Totales generales (para las tarjetas fijas)
+    # Totales generales (para las tarjetas fijas) - FILTRADO POR ROUTER
     today = datetime.now().date()
-    sales_today = Sale.query.filter(func.date(Sale.date_created) == today).all()
+    sales_today = Sale.query.filter(
+        func.date(Sale.date_created) == today,
+        Sale.router_id == active_router.id
+    ).all()
     total_today = sum(sale.price for sale in sales_today)
 
     current_month = datetime.now().strftime('%Y-%m')
-    sales_month = Sale.query.filter(func.strftime('%Y-%m', Sale.date_created) == current_month).all()
+    sales_month = Sale.query.filter(
+        func.strftime('%Y-%m', Sale.date_created) == current_month,
+        Sale.router_id == active_router.id
+    ).all()
     total_month = sum(sale.price for sale in sales_month)
 
-    # Obtener lista de perfiles únicos para el filtro
-    unique_profiles = db.session.query(Sale.profile_name).distinct().all()
+    # Obtener lista de perfiles únicos para el filtro - FILTRADO POR ROUTER
+    unique_profiles = db.session.query(Sale.profile_name).filter(
+        Sale.router_id == active_router.id
+    ).distinct().all()
     profiles_list = sorted([p[0] for p in unique_profiles])
 
-    # ===== WEEKLY SALES CALCULATIONS =====
+    # ===== WEEKLY SALES CALCULATIONS - FILTRADO POR ROUTER =====
     today_date = datetime.now()
     current_weekday = today_date.weekday()  # 0 = Monday, 6 = Sunday
     week_start = (today_date - timedelta(days=current_weekday)).replace(hour=0, minute=0, second=0, microsecond=0)
@@ -1010,7 +1099,8 @@ def reports_page():
     
     sales_this_week = Sale.query.filter(
         Sale.date_created >= week_start,
-        Sale.date_created <= week_end
+        Sale.date_created <= week_end,
+        Sale.router_id == active_router.id
     ).all()
     total_this_week = sum(sale.price for sale in sales_this_week)
     
@@ -1018,7 +1108,8 @@ def reports_page():
     prev_week_end = week_start - timedelta(seconds=1)
     sales_prev_week = Sale.query.filter(
         Sale.date_created >= prev_week_start,
-        Sale.date_created <= prev_week_end
+        Sale.date_created <= prev_week_end,
+        Sale.router_id == active_router.id
     ).all()
     total_prev_week = sum(sale.price for sale in sales_prev_week)
     
@@ -1027,7 +1118,7 @@ def reports_page():
     else:
         week_change_percent = 100 if total_this_week > 0 else 0
 
-    # ===== DAILY TREND DATA (Last 7 Days) - FILTERED =====
+    # ===== DAILY TREND DATA (Last 7 Days) - FILTERED BY ROUTER =====
     daily_labels = []
     daily_totals = []
     for i in range(6, -1, -1):  # 6 días atrás hasta hoy
@@ -1037,7 +1128,8 @@ def reports_page():
         
         daily_query = Sale.query.filter(
             Sale.date_created >= day_start,
-            Sale.date_created <= day_end
+            Sale.date_created <= day_end,
+            Sale.router_id == active_router.id  # ← FILTRADO POR ROUTER
         )
         
         if profile_filter:
@@ -1049,9 +1141,12 @@ def reports_page():
         daily_labels.append(day.strftime('%d/%m'))
         daily_totals.append(daily_total)
 
-    # ===== PROFILE DISTRIBUTION DATA - FILTERED =====
+    # ===== PROFILE DISTRIBUTION DATA - FILTERED BY ROUTER =====
     if not sales_list and not (start_date_str or end_date_str or profile_filter):
-         dist_query = Sale.query.filter(func.strftime('%Y-%m', Sale.date_created) == current_month)
+         dist_query = Sale.query.filter(
+             func.strftime('%Y-%m', Sale.date_created) == current_month,
+             Sale.router_id == active_router.id  # ← FILTRADO POR ROUTER
+         )
          dist_sales = dist_query.all()
     else:
         dist_sales = sales_list
@@ -1081,3 +1176,45 @@ def reports_page():
                            selected_end_date=end_date_str,
                            selected_profile=profile_filter,
                            active_page='reports')
+# ========== RUTAS DE PERFIL DE USUARIO ==========
+
+@main_bp.route('/profile')
+@login_required
+def user_profile():
+    """Página de perfil del usuario"""
+    return render_template('user_profile.html', active_page='profile')
+
+@main_bp.route('/change_password', methods=['POST'])
+@login_required
+def change_password():
+    """Cambiar contraseña del usuario actual"""
+    current_password = request.form.get('current_password', '')
+    new_password = request.form.get('new_password', '')
+    confirm_password = request.form.get('confirm_password', '')
+    
+    # Validaciones
+    if not all([current_password, new_password, confirm_password]):
+        flash("Todos los campos son obligatorios", "danger")
+        return redirect(url_for('main.user_profile'))
+    
+    # Verificar contraseña actual
+    if not current_user.check_password(current_password):
+        flash("La contraseña actual es incorrecta", "danger")
+        return redirect(url_for('main.user_profile'))
+    
+    # Verificar que las nuevas contraseñas coincidan
+    if new_password != confirm_password:
+        flash("Las contraseñas nuevas no coinciden", "danger")
+        return redirect(url_for('main.user_profile'))
+    
+    # Verificar longitud mínima
+    if len(new_password) < 4:
+        flash("La contraseña debe tener al menos 4 caracteres", "danger")
+        return redirect(url_for('main.user_profile'))
+    
+    # Cambiar contraseña
+    current_user.set_password(new_password)
+    db.session.commit()
+    
+    flash("Contraseña cambiada exitosamente", "success")
+    return redirect(url_for('main.user_profile'))

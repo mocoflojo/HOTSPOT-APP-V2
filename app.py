@@ -31,7 +31,11 @@ init_db(app)
 
 # REGISTRAR BLUEPRINTS
 app.register_blueprint(auth_bp, url_prefix='/auth') 
-app.register_blueprint(main_bp) 
+app.register_blueprint(main_bp)
+
+# Importar y registrar blueprint de routers
+from router_routes import routers_bp
+app.register_blueprint(routers_bp) 
 
 
 # Asegurarse de que la carpeta app_data exista
@@ -88,6 +92,28 @@ def format_number_filter(value):
         return formatted
     except (ValueError, TypeError):
         return value
+
+# Context processor para inyectar router info en todos los templates
+@app.context_processor
+def inject_router_info():
+    """Inyecta información del router activo en todos los templates"""
+    from database import Router
+    from flask import session
+    from flask_login import current_user
+    
+    if not current_user.is_authenticated:
+        return {}
+    
+    # Importar aquí para evitar import circular
+    from routes import get_active_router, get_all_active_routers
+    
+    active_router = get_active_router()
+    available_routers = get_all_active_routers()
+    
+    return {
+        'active_router': active_router,
+        'available_routers': available_routers
+    }
 
 # Sirve archivos desde la carpeta app_data bajo la URL /app_data/<filename>
 @app.route('/app_data/<path:filename>')
