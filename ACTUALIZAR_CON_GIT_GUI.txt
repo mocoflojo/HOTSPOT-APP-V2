@@ -1,0 +1,159 @@
+========================================
+  ACTUALIZAR CON GIT GUI
+  (Cuando el comando git no funciona)
+========================================
+
+PROBLEMA:
+========================================
+- Git instalado pero comando no funciona
+- update.bat da error: "git no se reconoce"
+- No quieres reiniciar la PC
+
+SOLUCIÓN: USAR GIT GUI
+========================================
+
+PASO 1: ABRIR GIT GUI
+--------------------------------------------
+1. Busca en Windows: "Git GUI"
+2. Abre la aplicación
+
+PASO 2: ABRIR EL REPOSITORIO
+--------------------------------------------
+1. En Git GUI, click en:
+   "Open Existing Repository"
+
+2. Navega a:
+   C:\Users\TuUsuario\Desktop\HOTSPOT-APP-V2
+
+3. Click en "Open"
+
+PASO 3: ACTUALIZAR (FETCH + MERGE)
+--------------------------------------------
+1. En el menú superior, click en:
+   Remote → Fetch from → origin
+
+2. Espera a que termine (10-30 segundos)
+
+3. Luego, click en:
+   Merge → Local Merge
+
+4. Selecciona: origin/feature/responsive-sidebar
+   (o la rama que te indiquen)
+
+5. Click en "Merge"
+
+6. Verás: "Merge completed successfully"
+
+PASO 4: CERRAR Y EJECUTAR
+--------------------------------------------
+1. Cierra Git GUI
+
+2. Abre la carpeta: HOTSPOT-APP-V2
+
+3. Verifica que exista:
+   PRUEBA_ACTUALIZACION.txt
+
+4. Si existe: ¡Actualización exitosa!
+
+5. Ejecuta: run.bat
+
+========================================
+ALTERNATIVA: GIT BASH
+========================================
+
+Si Git GUI no funciona:
+
+1. Busca en Windows: "Git Bash"
+2. Abre Git Bash
+3. Ejecuta:
+   cd /c/Users/TuUsuario/Desktop/HOTSPOT-APP-V2
+   git pull origin feature/responsive-sidebar
+4. Cierra Git Bash
+5. Ejecuta: run.bat
+
+========================================
+ARREGLAR EL COMANDO GIT (PERMANENTE)
+========================================
+
+Para que update.bat funcione:
+
+OPCIÓN A - Reiniciar PC (Más Fácil):
+1. Reinicia Windows
+2. Abre PowerShell
+3. Prueba: git --version
+4. Debería funcionar
+
+OPCIÓN B - Agregar al PATH Manualmente:
+1. Busca en Windows: "Variables de entorno"
+2. Click en "Editar las variables de entorno"
+3. Click en "Variables de entorno"
+4. En "Variables del sistema", busca "Path"
+5. Click en "Editar"
+6. Click en "Nuevo"
+7. Agrega: C:\Program Files\Git\cmd
+8. Click en "Aceptar" en todo
+9. Cierra y abre PowerShell
+10. Prueba: git --version
+
+========================================
+COMPARACIÓN DE MÉTODOS
+========================================
+
+Clonar de Nuevo:
+❌ Descarga TODO el proyecto (10 MB)
+❌ Pierdes configuración local
+❌ Tienes que configurar de nuevo
+❌ NO recomendado
+
+Actualizar (Pull/Fetch+Merge):
+✅ Descarga solo cambios (1-5 MB)
+✅ Mantiene configuración
+✅ Mantiene base de datos
+✅ RECOMENDADO
+
+========================================
+RESUMEN
+========================================
+
+Para actualizar SIN que funcione "git":
+
+Método 1 - Git GUI:
+1. Open Existing Repository
+2. Remote → Fetch from → origin
+3. Merge → Local Merge
+4. ¡Listo!
+
+Método 2 - Git Bash:
+1. Abrir Git Bash
+2. cd /c/Users/.../HOTSPOT-APP-V2
+3. git pull origin feature/responsive-sidebar
+4. ¡Listo!
+
+Método 3 - Arreglar PATH:
+1. Reiniciar PC
+2. Probar: git --version
+3. Ejecutar: update.bat
+4. ¡Listo!
+
+========================================
+VERIFICAR ACTUALIZACIÓN
+========================================
+
+Después de actualizar:
+
+1. Busca: PRUEBA_ACTUALIZACION.txt
+2. Si existe: ✅ Funcionó
+3. Ejecuta: run.bat
+4. Verifica que la app funcione
+
+========================================
+CONTACTO
+========================================
+
+Si tienes problemas, envía captura de
+pantalla del error.
+
+========================================
+Fecha: 17 de Diciembre 2025
+Versión: 2.1.0
+========================================

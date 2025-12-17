@@ -1,0 +1,137 @@
+========================================
+  INSTRUCCIONES PARA PROBAR ACTUALIZACIÓN
+  Para el Cliente
+========================================
+
+OBJETIVO:
+========================================
+Verificar que el sistema de actualización
+funciona correctamente.
+
+PASOS PARA EL CLIENTE:
+========================================
+
+PASO 1: VERIFICAR QUE LA APP ESTÁ INSTALADA
+--------------------------------------------
+1. Abre la carpeta: HOTSPOT-APP-V2
+2. Verifica que existan estos archivos:
+   - run.bat
+   - update.bat
+   - install.bat
+
+PASO 2: EJECUTAR ACTUALIZACIÓN
+--------------------------------------------
+1. Doble click en: update.bat
+
+   O desde PowerShell:
+   cd C:\Users\TuUsuario\Desktop\HOTSPOT-APP-V2
+   update.bat
+
+2. Verás en pantalla:
+   [1/6] Deteniendo aplicación... [OK]
+   [2/6] Guardando cambios... [OK]
+   [3/6] Descargando actualizaciones... [OK]
+   [4/6] Restaurando cambios... [OK]
+   [5/6] Actualizando dependencias... [OK]
+   [6/6] Verificando base de datos... [OK]
+   ¡Actualización completada!
+
+3. Espera 1-2 minutos
+
+PASO 3: VERIFICAR QUE FUNCIONÓ
+--------------------------------------------
+1. Busca el archivo: PRUEBA_ACTUALIZACION.txt
+
+2. Si lo ves:
+   ✅ ¡La actualización funcionó!
+   ✅ El sistema está operativo
+   ✅ Futuras actualizaciones serán igual de fáciles
+
+3. Si NO lo ves:
+   ❌ Algo salió mal
+   ❌ Contacta al soporte con captura de pantalla
+
+PASO 4: VERIFICAR LA APLICACIÓN
+--------------------------------------------
+1. Doble click en: run.bat
+2. Abre navegador: http://localhost:5000
+3. Login con tus credenciales
+4. Verifica que todo funcione:
+   - Dashboard carga
+   - Usuarios se ven
+   - Reportes funcionan
+   - Tus datos están intactos
+
+========================================
+QUÉ ESPERAR EN FUTURAS ACTUALIZACIONES
+========================================
+
+Cuando haya una nueva versión:
+
+1. Te avisaré por mensaje/email
+2. Ejecutas: update.bat
+3. Esperas 1-2 minutos
+4. La app se reinicia automáticamente
+5. ¡Listo! Nueva versión instalada
+
+VENTAJAS:
+- ✅ Solo descarga cambios (1-5 MB)
+- ✅ Tus datos NO se pierden
+- ✅ Automático y rápido
+- ✅ No necesitas reinstalar
+
+========================================
+SOLUCIÓN DE PROBLEMAS
+========================================
+
+Error: "git no se reconoce como comando"
+→ Reinicia la computadora
+→ O usa Git GUI (ver CLONAR_CON_GIT_GUI.txt)
+
+Error: "No se pudo actualizar"
+→ Verifica conexión a internet
+→ Contacta al soporte
+
+Error: "Conflictos con archivos locales"
+→ No modifiques archivos de la app
+→ Contacta al soporte si modificaste algo
+
+========================================
+ARCHIVOS QUE SE MANTIENEN
+========================================
+
+Al actualizar, estos archivos NO se tocan:
+
+✅ instance/users.db (tu base de datos)
+✅ config.ini (tu configuración)
+✅ app_data/ (tus precios y plantillas)
+
+Solo se actualizan:
+- Código Python (.py)
+- Templates HTML
+- Scripts (.bat)
+- Documentación
+
+========================================
+CONTACTO
+========================================
+
+Si tienes problemas:
+1. Toma captura de pantalla del error
+2. Contacta al soporte técnico
+3. Envía la captura
+
+========================================
+RESUMEN
+========================================
+
+1. Ejecutar: update.bat
+2. Esperar: 1-2 minutos
+3. Verificar: PRUEBA_ACTUALIZACION.txt existe
+4. Probar: run.bat funciona
+5. ¡Listo!
+
+========================================
+Fecha: 17 de Diciembre 2025
+Versión: 2.1.0
+========================================
