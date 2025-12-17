@@ -21,11 +21,33 @@ CUÁNDO USAR:
 CÓMO USAR:
 ========================================
 
+OPCIÓN 1: Usando clear_sales.bat (MÁS FÁCIL) ⭐
+------------------------------------------------
+1. Abre la carpeta: HOTSPOT-APP-V2
+2. Doble click en: clear_sales.bat
+3. Sigue las instrucciones en pantalla
+4. ¡Listo!
+
+OPCIÓN 2: Manualmente con PowerShell
+-------------------------------------
+⚠️ IMPORTANTE: Debes activar el entorno virtual primero
+
 1. Abre PowerShell o CMD
 2. Ve a la carpeta de la aplicación:
    cd C:\Users\Usuario\Desktop\HOTSPOT-APP-V2
-3. Ejecuta:
+
+3. ACTIVAR ENTORNO VIRTUAL:
+   .\venv\Scripts\Activate.ps1
+
+   Si da error de permisos:
+   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+   Luego ejecuta de nuevo: .\venv\Scripts\Activate.ps1
+
+4. Ejecuta el script:
    python clear_sales.py
+
+5. Cuando termines, desactiva el entorno:
+   deactivate
 
 OPCIONES DISPONIBLES:
 ========================================
