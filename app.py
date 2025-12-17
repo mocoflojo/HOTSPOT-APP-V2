@@ -68,6 +68,27 @@ if not os.path.exists(VOUCHER_TEMPLATE_FILE):
     with open(VOUCHER_TEMPLATE_FILE, 'w', encoding='utf-8') as f:
         f.write(default_voucher_content)
 
+# Filtro personalizado para formatear números con separadores de miles
+@app.template_filter('format_number')
+def format_number_filter(value):
+    """
+    Formatea un número con separadores de miles usando puntos.
+    Ejemplo: 1000 -> 1.000, 1500.50 -> 1.500,50
+    """
+    try:
+        # Convertir a float si es necesario
+        num = float(value)
+        # Separar parte entera y decimal
+        if num == int(num):
+            # Si es un número entero, no mostrar decimales
+            formatted = f"{int(num):,}".replace(',', '.')
+        else:
+            # Si tiene decimales, formatear con 2 decimales
+            formatted = f"{num:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+        return formatted
+    except (ValueError, TypeError):
+        return value
+
 # Sirve archivos desde la carpeta app_data bajo la URL /app_data/<filename>
 @app.route('/app_data/<path:filename>')
 def serve_app_data_file(filename):

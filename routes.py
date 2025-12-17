@@ -24,7 +24,7 @@ import string
 from datetime import datetime, timedelta
 import re
 import os
-from sqlalchemy import func
+from sqlalchemy import func, extract
 
 
 main_bp = Blueprint('main', __name__, template_folder='templates')
@@ -78,6 +78,19 @@ def dashboard():
     # Registrar ventas de usuarios activos
     check_and_record_active_sales()
 
+    # Calcular ventas
+    now = datetime.now()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    # Ventas de hoy (Suma de precios)
+    sales_today = db.session.query(func.sum(Sale.price)).filter(Sale.date_created >= today_start).scalar() or 0
+    
+    # Ventas del mes (Suma de precios)
+    sales_month = db.session.query(func.sum(Sale.price)).filter(Sale.date_created >= month_start).scalar() or 0
+
+
+
     api = get_api_connection()
     if not api:
         flash("No se pudo conectar con el router MikroTik. Por favor, verifica la configuración o la conexión.", "danger")
@@ -127,11 +140,44 @@ def dashboard():
         formatted_router_info['hdd_used_mb'] = f"{router_info.get('hdd_used_mb', 0)} MB"
         formatted_router_info['hdd_total_mb'] = f"{router_info.get('hdd_total_mb', 0)} MB"
 
+    # --- Datos para el Gráfico (Últimos 7 días) ---
+    chart_labels = []
+    chart_values = []
+    
+    # Iterar por los últimos 7 días (incluyendo hoy)
+    for i in range(6, -1, -1):
+        date_point = now - timedelta(days=i)
+        start_of_day = date_point.replace(hour=0, minute=0, second=0, microsecond=0)
+        end_of_day = date_point.replace(hour=23, minute=59, second=59, microsecond=999999)
+        
+        daily_total = db.session.query(func.sum(Sale.price)).filter(
+            Sale.date_created >= start_of_day,
+            Sale.date_created <= end_of_day
+        ).scalar() or 0
+        
+        # Etiqueta: Solo día/mes (ej. 17/12)
+        chart_labels.append(date_point.strftime("%d/%m"))
+        chart_values.append(float(daily_total))
+
+    # --- Actividad Reciente (Últimas 5 ventas) ---
+    recent_sales = Sale.query.order_by(Sale.date_created.desc()).limit(5).all()
+
+    # --- Perfiles (Para el modal de creación rápida) ---
+    all_profiles = get_hotspot_profiles()
+    if all_profiles is None:
+        all_profiles = []
+
     return render_template('dashboard.html',
                            active_users=active_users if active_users is not None else [],
                            all_users=all_users if all_users is not None else [],
                            active_page='dashboard',
-                           router_info=formatted_router_info)
+                           router_info=formatted_router_info,
+                           sales_today=sales_today,
+                           sales_month=sales_month,
+                           chart_labels=chart_labels,
+                           chart_values=chart_values,
+                           recent_sales=recent_sales,
+                           all_profiles=all_profiles)
 
 @main_bp.route('/profiles')
 @login_required

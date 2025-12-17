@@ -4,57 +4,286 @@
 
 {% block page_title %}Dashboard{% endblock %}
 
+
+{% block header_right %}
+<div class="flex items-center space-x-3 text-sm text-gray-600">
+    <div class="hidden md:block">
+        <i class="far fa-calendar-alt mr-1"></i> {{ router_info.current_datetime }}
+    </div>
+    <div class="flex items-center space-x-2 bg-gray-100 px-3 py-1 rounded-full border border-gray-200">
+        <span class="flex items-center" title="CPU">
+            <i class="fas fa-microchip mr-1.5 text-blue-500"></i>
+            <span class="font-medium text-gray-700">{{ router_info.cpu_load }}</span>
+        </span>
+        <span class="text-gray-300">|</span>
+        <span class="flex items-center" title="RAM">
+            <i class="fas fa-memory mr-1.5 text-green-500"></i>
+            <span class="text-xs text-gray-500 mr-1">RAM</span>
+            <span class="font-medium text-gray-700">{{ router_info.memory_used_mb }}</span>
+        </span>
+        <span class="text-gray-300">|</span>
+        <span class="flex items-center" title="HDD">
+            <i class="fas fa-hdd mr-1.5 text-purple-500"></i>
+            <span class="text-xs text-gray-500 mr-1">HDD</span>
+            <span class="font-medium text-gray-700">{{ router_info.hdd_used_mb }}</span>
+        </span>
+    </div>
+</div>
+{% endblock %}
+
 {% block content %}
-<div class="router-status-bar bg-white rounded-lg p-3 mb-6 shadow-md">
-    {# Contenedor flex para las 3 secciones: distribuye horizontalmente, asegura que todas se estiren a la misma altura #}
-    <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center space-y-3 md:space-y-0">
-        {# Sección 1: Fecha, Hora y Uptime #}
-        <div class="flex-1 flex flex-col justify-center text-center px-3 py-2 md:border-r md:border-gray-200">
-            <p class="text-xs font-medium text-gray-600">Fecha y Hora Actual:</p>
-            <p class="text-sm font-normal text-gray-800">{{ router_info.current_datetime }}</p> {# Dato dinámico #}
-            <p class="text-xs font-medium text-gray-600 mt-1">Uptime del Router:</p>
-            <p class="text-sm font-normal text-gray-800">{{ router_info.uptime_display }}</p> {# Dato dinámico #}
-        </div>
+{# El contenido anterior de router-status-bar ha sido movido al header #}
 
-        {# Sección 2: Modelo del Router y Versión de OS #}
-        <div class="flex-1 flex flex-col justify-center text-center px-3 py-2 md:border-r md:border-gray-200">
-            <p class="text-xs font-medium text-gray-600">Modelo del Router:</p>
-            <p class="text-sm font-normal text-gray-800">{{ router_info.model }}</p> {# Dato dinámico #}
-            <p class="text-xs font-medium text-gray-600 mt-1">Versión de RouterOS:</p>
-            <p class="text-sm font-normal text-gray-800">{{ router_info.version }}</p> {# Dato dinámico #}
+{# Sección de Tarjetas Principales (Métricas) #}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    {# Card 1: Ventas Hoy #}
+    <div class="card bg-white rounded-lg p-5 border-l-4 border-green-500">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Ventas Hoy</p>
+                <h3 class="text-2xl font-bold text-gray-800 mt-1">${{ sales_today|format_number }}</h3>
+            </div>
+            <div class="p-2 bg-green-50 rounded-lg text-green-600">
+                <i class="fas fa-dollar-sign text-xl"></i>
+            </div>
         </div>
+    </div>
 
-        {# Sección 3: CPU, Memoria y Disco - Ajustado para ser más compacto y simétrico, en columna #}
-        <div class="flex-1 flex flex-col justify-center text-center px-3 py-2">
-            <p class="text-xs font-medium text-gray-600">CPU Carga: <span class="font-normal text-blue-600 text-sm">{{ router_info.cpu_load }}</span></p> {# Dato dinámico #}
-            <p class="text-xs font-medium text-gray-600">Memoria: <span class="font-normal text-green-600 text-sm">{{ router_info.memory_used_mb }} / {{ router_info.memory_total_mb }}</span></p> {# Dato dinámico #}
-            <p class="text-xs font-medium text-gray-600">Disco: <span class="font-normal text-purple-600 text-sm">{{ router_info.hdd_used_mb }} / {{ router_info.hdd_total_mb }}</span></p> {# Dato dinámico #}
+    {# Card 2: Ventas Mes #}
+    <div class="card bg-white rounded-lg p-5 border-l-4 border-blue-500">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Ventas Mes</p>
+                <h3 class="text-2xl font-bold text-gray-800 mt-1">${{ sales_month|format_number }}</h3>
+            </div>
+            <div class="p-2 bg-blue-50 rounded-lg text-blue-600">
+                <i class="fas fa-calendar-check text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    {# Card 3: Usuarios Activos #}
+    <a href="{{ url_for('main.list_active_users') }}"
+        class="card block bg-white rounded-lg p-5 border-l-4 border-purple-500 hover:bg-gray-50 transition-colors">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Usuarios Activos</p>
+                <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ active_users|length }}</h3>
+            </div>
+            <div class="p-2 bg-purple-50 rounded-lg text-purple-600">
+                <i class="fas fa-wifi text-xl"></i>
+            </div>
+        </div>
+    </a>
+
+    {# Card 4: Usuarios Totales #}
+    <a href="{{ url_for('main.list_users') }}"
+        class="card block bg-white rounded-lg p-5 border-l-4 border-orange-500 hover:bg-gray-50 transition-colors">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total Usuarios</p>
+                <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ all_users|length }}</h3>
+            </div>
+            <div class="p-2 bg-orange-50 rounded-lg text-orange-600">
+                <i class="fas fa-users text-xl"></i>
+            </div>
+        </div>
+    </a>
+</div>
+
+{# Sección de Acciones Rápidas #}
+<div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Acciones Rápidas</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <a href="{{ url_for('main.generate_page') }}"
+            class="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition-all group">
+            <div
+                class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                <i class="fas fa-ticket-alt text-lg"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-700">Generar Vouchers</span>
+        </a>
+
+        <a href="#" onclick="document.getElementById('modalQuickUser').classList.remove('hidden');"
+            class="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-dashed border-gray-300 hover:border-green-500 hover:bg-green-50 transition-all group">
+            <div
+                class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                <i class="fas fa-user-plus text-lg"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-700">Usuario Manual</span>
+        </a>
+
+        <a href="{{ url_for('main.profiles_page') }}"
+            class="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-dashed border-gray-300 hover:border-purple-500 hover:bg-purple-50 transition-all group">
+            <div
+                class="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                <i class="fas fa-sliders-h text-lg"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-700">Gestionar Perfiles</span>
+        </a>
+
+        <a href="{{ url_for('main.reports_page') }}"
+            class="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-dashed border-gray-300 hover:border-orange-500 hover:bg-orange-50 transition-all group">
+            <div
+                class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                <i class="fas fa-chart-pie text-lg"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-700">Ver Reportes</span>
+        </a>
+    </div>
+</div>
+
+{# Sección de Gráficos y Tablas #}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    {# Gráfico de Ventas #}
+    <div class="bg-white rounded-lg shadow-sm p-5">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Ingresos Últimos 7 Días</h3>
+        <div class="relative h-64 w-full">
+            <canvas id="salesChart"></canvas>
+        </div>
+    </div>
+
+    {# Tabla de Últimas Ventas #}
+    <div class="bg-white rounded-lg shadow-sm p-5">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Últimas Ventas</h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full leading-normal">
+                <thead>
+                    <tr>
+                        <th
+                            class="px-3 py-2 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Ticket/Usuario
+                        </th>
+                        <th
+                            class="px-3 py-2 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Perfil
+                        </th>
+                        <th
+                            class="px-3 py-2 border-b-2 border-gray-200 bg-gray-100 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Monto
+                        </th>
+                        <th
+                            class="px-3 py-2 border-b-2 border-gray-200 bg-gray-100 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Hora
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in recent_sales %}
+                    <tr>
+                        <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm">
+                            <span class="text-gray-900 whitespace-no-wrap font-medium">{{ sale.ticket_code }}</span>
+                        </td>
+                        <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm">
+                            <span
+                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                {{ sale.profile_name }}
+                            </span>
+                        </td>
+                        <td
+                            class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-right text-green-600 font-bold">
+                            ${{ sale.price|format_number }}
+                        </td>
+                        <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-right text-gray-500">
+                            {{ sale.date_created.strftime('%H:%M') }}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4"
+                            class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center text-gray-500">
+                            No hay ventas recientes.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-4 text-right">
+            <a href="{{ url_for('main.reports_page') }}"
+                class="text-sm text-blue-500 hover:text-blue-700 font-medium">Ver Todo &rarr;</a>
         </div>
     </div>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <a href="{{ url_for('main.list_active_users') }}" class="card block bg-white rounded-lg p-5">
-        <div class="flex items-center">
-            <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                <i class="fas fa-wifi text-xl"></i>
-            </div>
-            <div class="ml-4">
-                <p class="text-sm font-medium text-gray-500">Usuarios Activos</p>
-                <p class="text-2xl font-semibold">{{ active_users|length }}</p>
+{# Scripts para Gráficos #}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Datos pasados desde Flask
+        const labels = {{ chart_labels | tojson
+    }};
+    const data = {{ chart_values | tojson }};
+
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    const salesChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Ventas ($)',
+                data: data,
+                backgroundColor: 'rgba(59, 130, 246, 0.5)', // Blue-500 con opacidad
+                borderColor: 'rgb(59, 130, 246)',
+                borderWidth: 1,
+                borderRadius: 4,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function (value) {
+                            // Formatear con separadores de miles
+                            return '$' + value.toLocaleString('es-ES');
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+    });
+</script>
+
+{# Modal Simple para Crear Usuario Manual Rápido (Opcional, reutiliza lógica existente si es posible o envía a ruta) #}
+{# Por simimplicidad, este botón arriba podría llevar directo a la página de usuarios con un modal abierto, pero por
+ahora... #}
+{# Vamos a hacer que el botón de Usuario Manual lleve a la lista de usuarios y abra el modal allí si es complejo, #}
+{# pero mejor aún, agreguemos un modal aquí mismo si es fácil. #}
+<div id="modalQuickUser" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Nuevo Usuario Manual</h3>
+            <div class="mt-2 px-7 py-3">
+                <form action="{{ url_for('main.create_manual_user') }}" method="POST">
+                    <input type="text" name="username" placeholder="Usuario"
+                        class="mb-3 px-3 py-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required>
+                    <input type="password" name="password" placeholder="Contraseña"
+                        class="mb-3 px-3 py-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required>
+                    <select name="profile" class="mb-3 px-3 py-2 border rounded-lg w-full bg-white" required>
+                        {% for profile in all_profiles %}
+                        <option value="{{ profile.name }}">{{ profile.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="text" name="comment" placeholder="Comentario (Opcional)"
+                        class="mb-3 px-3 py-2 border rounded-lg w-full">
+                    <button type="submit"
+                        class="bg-blue-500 text-white font-bold py-2 px-4 rounded w-full hover:bg-blue-600">Crear</button>
+                    <button type="button" onclick="document.getElementById('modalQuickUser').classList.add('hidden')"
+                        class="mt-3 text-gray-500 hover:text-gray-700 text-sm underline">Cancelar</button>
+                </form>
             </div>
         </div>
-    </a>
-    <a href="{{ url_for('main.list_users') }}" class="card block bg-white rounded-lg p-5">
-        <div class="flex items-center">
-            <div class="p-3 rounded-full bg-green-100 text-green-600">
-                <i class="fas fa-users-cog text-xl"></i>
-            </div>
-            <div class="ml-4">
-                <p class="text-sm font-medium text-gray-500">Usuarios Totales</p>
-                <p class="text-2xl font-semibold">{{ all_users|length }}</p>
-            </div>
-        </div>
-    </a>
+    </div>
 </div>
 {% endblock %}
