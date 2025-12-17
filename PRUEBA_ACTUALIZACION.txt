@@ -1,0 +1,60 @@
+========================================
+  PRUEBA DE ACTUALIZACIÓN
+  Sistema de Actualización Automática
+========================================
+
+Este archivo es una PRUEBA para verificar
+que el sistema de actualización funciona.
+
+Si estás viendo este archivo, significa que:
+
+✅ update.bat funcionó correctamente
+✅ Git Pull descargó los cambios
+✅ El sistema de actualización está operativo
+
+========================================
+INSTRUCCIONES PARA EL CLIENTE
+========================================
+
+Para probar el sistema de actualización:
+
+1. Ejecuta: update.bat
+2. Espera 1-2 minutos
+3. Busca este archivo: PRUEBA_ACTUALIZACION.txt
+4. Si lo ves, ¡la actualización funcionó!
+
+========================================
+PRÓXIMAS ACTUALIZACIONES
+========================================
+
+Cuando haya una nueva versión:
+
+1. Te avisaré por mensaje/email
+2. Ejecutas: update.bat
+3. Esperas 1-2 minutos
+4. ¡Listo! Aplicación actualizada
+
+Tus datos (base de datos, configuración)
+NO se pierden al actualizar.
+
+========================================
+VERIFICAR VERSIÓN
+========================================
+
+Para ver qué versión tienes instalada:
+
+1. Abre PowerShell en la carpeta de la app
+2. Ejecuta: git log -1 --oneline
+3. Verás el último cambio instalado
+
+========================================
+CONTACTO
+========================================
+
+Si tienes problemas con la actualización,
+contacta al soporte técnico.
+
+========================================
+Fecha de esta prueba: 17 de Diciembre 2025
+Versión: 2.1.0
+========================================
