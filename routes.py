@@ -15,7 +15,8 @@ from utils import ( # Importar de utils.py
     load_prices, save_prices, load_custom_expiration_scripts,
     save_custom_expiration_scripts, get_all_expiration_scripts,
     format_uptime_display, allowed_file, SCRIPTS_DE_EXPIRACION,
-    APP_DATA_FOLDER, PRICES_FILE, EXPIRATION_SCRIPTS_FILE, VOUCHER_TEMPLATE_FILE, LOGO_FILE
+    APP_DATA_FOLDER, PRICES_FILE, EXPIRATION_SCRIPTS_FILE, VOUCHER_TEMPLATE_FILE, LOGO_FILE,
+    VOUCHER_TEMPLATES  # NUEVO: Plantillas de vouchers
 )
 
 import sys
@@ -845,6 +846,9 @@ def print_vouchers():
     profile_filter = request.args.get('profile', '')
     comment_filter = request.args.get('comment', '')
     search_query = request.args.get('search', '').strip()
+    
+    # NUEVO: Obtener la plantilla seleccionada
+    template_type = request.args.get('template', 'standard')
 
     # Si no hay ningún filtro aplicado, redirigir y mostrar un mensaje
     if not (profile_filter or comment_filter or search_query):
@@ -909,8 +913,11 @@ def print_vouchers():
             'mode': mode
         })
 
+    # NUEVO: Cargar la plantilla seleccionada
+    template_file = VOUCHER_TEMPLATES.get(template_type, VOUCHER_TEMPLATES['standard'])['file']
+    
     try:
-        with open(VOUCHER_TEMPLATE_FILE, 'r', encoding='utf-8') as f:
+        with open(template_file, 'r', encoding='utf-8') as f:
             voucher_template_content = f.read()
     except FileNotFoundError:
         voucher_template_content = ""
@@ -940,33 +947,52 @@ def print_vouchers():
 @login_required
 def voucher_template_editor():
     upload_logo_message = request.args.get('upload_logo_message')
+    
+    # Obtener la plantilla seleccionada (por defecto: standard)
+    selected_template = request.args.get('template', 'standard')
+    
+    # Validar que la plantilla existe
+    if selected_template not in VOUCHER_TEMPLATES:
+        selected_template = 'standard'
 
     if request.method == 'POST':
+        # Obtener qué plantilla se está guardando
+        template_to_save = request.form.get('template_type', 'standard')
         new_template_content = request.form['template_code']
+        
+        # Obtener el archivo de la plantilla
+        template_file = VOUCHER_TEMPLATES[template_to_save]['file']
+        
         try:
-            with open(VOUCHER_TEMPLATE_FILE, 'w', encoding='utf-8') as f:
+            with open(template_file, 'w', encoding='utf-8') as f:
                 f.write(new_template_content)
-            flash("Plantilla guardada exitosamente.", "success")
-            return redirect(url_for('main.voucher_template_editor'))
+            
+            template_name = VOUCHER_TEMPLATES[template_to_save]['name']
+            flash(f"Plantilla '{template_name}' guardada exitosamente.", "success")
+            return redirect(url_for('main.voucher_template_editor', template=template_to_save))
         except Exception as e:
             flash(f"Error al guardar la plantilla: {e}", "danger")
-            return redirect(url_for('main.voucher_template_editor'))
+            return redirect(url_for('main.voucher_template_editor', template=template_to_save))
 
+    # Cargar el contenido de la plantilla seleccionada
+    template_file = VOUCHER_TEMPLATES[selected_template]['file']
+    
     try:
-        with open(VOUCHER_TEMPLATE_FILE, 'r', encoding='utf-8') as f:
+        with open(template_file, 'r', encoding='utf-8') as f:
             current_template_content = f.read()
     except FileNotFoundError:
         current_template_content = ""
-        flash("La plantilla de vouchers no existe. Se ha cargado una plantilla vacía.", "warning")
+        flash(f"La plantilla no existe. Se ha cargado una plantilla vacía.", "warning")
     except Exception as e:
         current_template_content = f""
-        flash(f"Error al leer la plantilla de vouchers: {e}", "danger")
-
+        flash(f"Error al leer la plantilla: {e}", "danger")
 
     return render_template('template_editor.html',
                            current_template_content=current_template_content,
                            active_page='template_editor',
-                           upload_logo_message=upload_logo_message)
+                           upload_logo_message=upload_logo_message,
+                           voucher_templates=VOUCHER_TEMPLATES,
+                           selected_template=selected_template)
 
 @main_bp.route('/upload_logo', methods=['POST'])
 @login_required

@@ -6,62 +6,90 @@
 
 {% block content %}
 <div class="card bg-white rounded-lg p-6 mb-8">
-    <form method="GET" action="{{ url_for('main.list_users') }}" class="space-y-6"> {# Usar space-y-6 para separar secciones #}
+    <form method="GET" action="{{ url_for('main.list_users') }}" class="space-y-6"> {# Usar space-y-6 para separar
+        secciones #}
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end"> {# Grid para filtros y botón Filtrar/Limpiar #}
             <div>
                 <label for="search" class="block text-sm font-medium text-gray-700">Buscar por Nombre</label>
-                <input type="text" name="search" id="search" value="{{ search_query or '' }}" placeholder="Nombre de usuario..." class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                <input type="text" name="search" id="search" value="{{ search_query or '' }}"
+                    placeholder="Nombre de usuario..."
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
             </div>
             <div>
                 <label for="profile" class="block text-sm font-medium text-gray-700">Filtrar por Perfil</label>
-                <select name="profile" id="profile" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                <select name="profile" id="profile"
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                     <option value="">-- Todos los Perfiles --</option>
                     {% for p in profiles %}
-                        <option value="{{ p }}" {% if p == selected_profile %}selected{% endif %}>{{ p }}</option>
+                    <option value="{{ p }}" {% if p==selected_profile %}selected{% endif %}>{{ p }}</option>
                     {% endfor %}
                 </select>
             </div>
             <div>
-                <label for="comment" class="block text-sm font-medium text-gray-700">Filtrar por Lote (Comentario)</label>
-                <select name="comment" id="comment" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                <label for="comment" class="block text-sm font-medium text-gray-700">Filtrar por Lote
+                    (Comentario)</label>
+                <select name="comment" id="comment"
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                     <option value="">-- Todos los Lotes --</option>
                     {% for c in comments %}
-                        <option value="{{ c }}" {% if c == selected_comment %}selected{% endif %}>{{ c }}</option>
+                    <option value="{{ c }}" {% if c==selected_comment %}selected{% endif %}>{{ c }}</option>
                     {% endfor %}
                 </select>
             </div>
             {# Botones de Filtrar y Limpiar al lado de los filtros #}
-            <div class="flex flex-col space-y-2"> {# Usar flex-col para apilar los botones en el mismo espacio vertical #}
-                <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+            <div class="flex flex-col space-y-2"> {# Usar flex-col para apilar los botones en el mismo espacio vertical
+                #}
+                <button type="submit"
+                    class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
                     <i class="fas fa-filter mr-2"></i>Filtrar
                 </button>
-                <a href="{{ url_for('main.list_users') }}" class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                <a href="{{ url_for('main.list_users') }}"
+                    class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                     Limpiar Filtros
                 </a>
             </div>
         </div>
 
         {# Sección de Botones de Acción Global (Imprimir y Eliminar) #}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200 mt-6"> {# Añadir pt-4 y border-t para una separación clara #}
-            {# Botón para imprimir #}
-            <button type="submit" formaction="{{ url_for('main.print_vouchers') }}" formtarget="_blank"
+        <div class="pt-4 border-t border-gray-200 mt-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                {# Selector de plantilla #}
+                <div>
+                    <label for="template" class="block text-sm font-medium text-gray-700 mb-1">Diseño de
+                        Impresión</label>
+                    <select name="template" id="template"
+                        class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                        <option value="standard">Con Logo - Elegante</option>
+                        <option value="compact">Sin Logo - Simple</option>
+                        <option value="minimal">Térmica - Compacto</option>
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500">Edita los diseños en Editor de Plantillas</p>
+                </div>
+
+                {# Botón para imprimir #}
+                <button type="submit" formaction="{{ url_for('main.print_vouchers') }}" formtarget="_blank"
                     class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 {% if not all_users %}opacity-50 cursor-not-allowed{% endif %}"
-                    {% if not all_users or not filters_applied %}disabled{% endif %}> {# Deshabilitar si no hay usuarios o NO hay filtros aplicados #}
-                <i class="fas fa-print mr-2"></i>Imprimir Filtrados
-                {% if filters_applied %} {# Mostrar conteo solo si hay filtros aplicados #}
+                    {% if not all_users or not filters_applied %}disabled{% endif %}> {# Deshabilitar si no hay usuarios
+                    o NO hay filtros aplicados #}
+                    <i class="fas fa-print mr-2"></i>Imprimir Filtrados
+                    {% if filters_applied %} {# Mostrar conteo solo si hay filtros aplicados #}
                     ({{ all_users|length }})
-                {% endif %}
-            </button>
-            {# Botón para eliminar filtrados #}
-            <button type="submit" formaction="{{ url_for('main.delete_by_filter') }}"
-                    onclick="return confirm('{% if filters_applied %}¿Estás seguro de que quieres ELIMINAR PERMANENTEMENTE a los {{ all_users|length }} usuarios que coinciden con este filtro?{% else %}Esta acción solo está disponible cuando se ha aplicado un filtro. Si deseas eliminar todos los usuarios, aplica un filtro que los contenga a todos y luego usa este botón.{% endif %}')" {# Mensaje más claro y adaptado #}
-                    class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 {% if not all_users or not filters_applied %}opacity-50 cursor-not-allowed{% endif %}" {# <-- CAMBIO CLAVE: opacity y cursor si está deshabilitado #}
-                    {% if not all_users or not filters_applied %}disabled{% endif %}> {# <-- CAMBIO CLAVE: deshabilitar si no hay usuarios O NO hay filtros aplicados #}
-                <i class="fas fa-exclamation-triangle mr-2"></i>Eliminar Filtrados
-                {% if filters_applied %} {# Mostrar conteo solo si hay filtros aplicados #}
-                    ({{ all_users|length }})
-                {% endif %}
-            </button>
+                    {% endif %}
+                </button>
+
+                {# Botón para eliminar filtrados #}
+                <button type="submit" formaction="{{ url_for('main.delete_by_filter') }}"
+                    onclick="return confirm('{% if filters_applied %}¿Estás seguro de que quieres ELIMINAR PERMANENTEMENTE a los {{ all_users|length }} usuarios que coinciden con este filtro?{% else %}Esta acción solo está disponible cuando se ha aplicado un filtro. Si deseas eliminar todos los usuarios, aplica un filtro que los contenga a todos y luego usa este botón.{% endif %}')"
+                    {# Mensaje más claro y adaptado #}
+                    class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 {% if not all_users or not filters_applied %}opacity-50 cursor-not-allowed{% endif %}"
+                    {# <-- CAMBIO CLAVE: opacity y cursor si está deshabilitado #} {% if not all_users or not
+                    filters_applied %}disabled{% endif %}> {# <-- CAMBIO CLAVE: deshabilitar si no hay usuarios O NO hay
+                        filtros aplicados #} <i class="fas fa-exclamation-triangle mr-2"></i>Eliminar Filtrados
+                        {% if filters_applied %} {# Mostrar conteo solo si hay filtros aplicados #}
+                        ({{ all_users|length }})
+                        {% endif %}
+                </button>
+            </div>
         </div>
     </form>
 </div>
@@ -72,41 +100,63 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Perfil</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Datos Descargados</th>
-                        <th scope="col" class="col-span-2 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comentario</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Usuario</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Perfil</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Datos
+                            Descargados</th>
+                        <th scope="col"
+                            class="col-span-2 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Acciones</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Comentario</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     {% for user in all_users %}
                     <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 {% if user.disabled == 'true' %}opacity-50{% endif %}">{{ user.name }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 {% if user.disabled == 'true' %}opacity-50{% endif %}">{{ user.profile }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 {% if user.disabled == 'true' %}opacity-50{% endif %}">
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 {% if user.disabled == 'true' %}opacity-50{% endif %}">
+                            {{ user.name }}</td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 {% if user.disabled == 'true' %}opacity-50{% endif %}">
+                            {{ user.profile }}</td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 {% if user.disabled == 'true' %}opacity-50{% endif %}">
                             {{ '%.2f'|format(user['bytes-out']|int / 1024 / 1024) }} MB
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="{{ url_for('main.edit_user_page', user_id=user['id']) }}" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200">
+                            <a href="{{ url_for('main.edit_user_page', user_id=user['id']) }}"
+                                class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200">
                                 <i class="fas fa-pencil-alt mr-2"></i>Editar
                             </a>
                             {% if user.disabled == 'true' %}
-                                <a href="{{ url_for('main.enable_user', user_id=user['id']) }}" class="ml-2 inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200">
-                                    <i class="fas fa-check-circle mr-2"></i>Habilitar
-                                </a>
+                            <a href="{{ url_for('main.enable_user', user_id=user['id']) }}"
+                                class="ml-2 inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200">
+                                <i class="fas fa-check-circle mr-2"></i>Habilitar
+                            </a>
                             {% else %}
-                                <a href="{{ url_for('main.disable_user', user_id=user['id']) }}" class="ml-2 inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-yellow-700 bg-yellow-100 hover:bg-yellow-200">
-                                    <i class="fas fa-ban mr-2"></i>Deshabilitar
-                                </a>
+                            <a href="{{ url_for('main.disable_user', user_id=user['id']) }}"
+                                class="ml-2 inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-yellow-700 bg-yellow-100 hover:bg-yellow-200">
+                                <i class="fas fa-ban mr-2"></i>Deshabilitar
+                            </a>
                             {% endif %}
                             {% if 'id' in user %}
-                                <a href="{{ url_for('main.delete_user', user_id=user['id']) }}" onclick="return confirm('¿Estás seguro de que quieres ELIMINAR a este usuario? Esta acción es permanente.')" class="ml-2 inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200">
-                                    <i class="fas fa-trash-alt mr-2"></i>Eliminar
-                                </a>
+                            <a href="{{ url_for('main.delete_user', user_id=user['id']) }}"
+                                onclick="return confirm('¿Estás seguro de que quieres ELIMINAR a este usuario? Esta acción es permanente.')"
+                                class="ml-2 inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200">
+                                <i class="fas fa-trash-alt mr-2"></i>Eliminar
+                            </a>
                             {% endif %}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 {% if user.disabled == 'true' %}opacity-50{% endif %}">{{ user.comment or '' }}</td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 {% if user.disabled == 'true' %}opacity-50{% endif %}">
+                            {{ user.comment or '' }}</td>
                     </tr>
                     {% else %}
                     <tr>
@@ -119,4 +169,4 @@
             </table>
         </div>
     </div>
-{% endblock %}
+    {% endblock %}

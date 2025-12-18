@@ -1,0 +1,48 @@
+<div class="voucher-card"
+    style="width: 2in; height: 1.5in; border: 1px solid #333; padding: 0.05in; display: inline-block; margin: 0.03in; vertical-align: top; page-break-inside: avoid; box-sizing: border-box;">
+
+    <!-- Precio -->
+    <div style="text-align: center; margin-bottom: 0.04in;">
+        <span style="font-size: 16px; font-weight: bold; color: #2563eb;">${{ voucher.price|format_number }}</span>
+    </div>
+
+    <!-- Usuario/PIN -->
+    {% if voucher.mode == 'pin' %}
+    <div style="text-align: center; margin-bottom: 0.03in;">
+        <span style="font-size: 9px; color: #666;">PIN:</span><br>
+        <span
+            style="font-size: 14px; font-weight: bold; color: #16a34a; font-family: 'Consolas', monospace; letter-spacing: 1px;">{{
+            voucher.username }}</span>
+    </div>
+    {% else %}
+    <div style="margin-bottom: 0.02in;">
+        <div style="font-size: 8px; color: #666;">Usuario:</div>
+        <div
+            style="font-size: 10px; font-weight: bold; color: #16a34a; font-family: 'Consolas', monospace; word-break: break-all;">
+            {{ voucher.username }}</div>
+    </div>
+    <div style="margin-bottom: 0.02in;">
+        <div style="font-size: 8px; color: #666;">Contraseña:</div>
+        <div
+            style="font-size: 10px; font-weight: bold; color: #dc2626; font-family: 'Consolas', monospace; word-break: break-all;">
+            {{ voucher.password }}</div>
+    </div>
+    {% endif %}
+
+    <!-- Tiempo -->
+    {% if voucher.limit_uptime_formatted %}
+    <div style="font-size: 8px; color: #666; margin-bottom: 0.02in;">
+        Tiempo: <span style="font-weight: 600;">{{ voucher.limit_uptime_formatted }}</span>
+    </div>
+    {% endif %}
+
+    <!-- Expiración -->
+    <div style="font-size: 8px; color: #666; margin-bottom: 0.02in;">
+        Expira: <span style="font-weight: 600;">{{ voucher.expiration_mode_display }}</span>
+    </div>
+
+    <!-- Login -->
+    <div style="font-size: 7px; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+        Login: <span style="font-weight: 600;">{{ hotspot_dns }}</span>
+    </div>
+</div>

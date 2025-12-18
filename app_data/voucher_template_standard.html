@@ -1,0 +1,55 @@
+<div class="voucher-card"
+    style="width: 2.4in; height: 1in; border: 1.5px solid #cbd5e1; display: inline-block; margin: 0.05in; vertical-align: top; page-break-inside: avoid; box-sizing: border-box; overflow: hidden; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+
+    <div style="display: flex; height: 100%;">
+        <!-- Logo a la izquierda -->
+        <div
+            style="width: 0.8in; display: flex; align-items: center; justify-content: center; padding: 0.08in; flex-shrink: 0; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-right: 2px solid #cbd5e1;">
+            <img src="/app_data/logo.png" alt="Logo" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+        </div>
+
+        <!-- Contenido principal -->
+        <div
+            style="flex: 1; padding: 0.08in; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; background: #ffffff;">
+
+            <!-- Header: Precio -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.04in;">
+                <div
+                    style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 0.03in 0.1in; border-radius: 4px; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);">
+                    <span style="font-size: 16px; font-weight: bold; letter-spacing: 0.5px;">${{
+                        voucher.price|format_number }}</span>
+                </div>
+                {% if voucher.limit_uptime_formatted %}
+                <div
+                    style="background: #fef3c7; color: #92400e; padding: 0.02in 0.08in; border-radius: 4px; font-size: 8px; font-weight: 600;">
+                    ⏱ {{ voucher.limit_uptime_formatted }}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- PIN Principal -->
+            <div style="text-align: center; margin-bottom: 0.04in;">
+                <div
+                    style="font-size: 8px; color: #64748b; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 0.02in;">
+                    CÓDIGO PIN</div>
+                <div
+                    style="font-size: 18px; font-weight: bold; color: #0f172a; font-family: 'Consolas', monospace; letter-spacing: 3px; background: #f1f5f9; padding: 0.04in; border-radius: 4px;">
+                    {{ voucher.username }}
+                </div>
+            </div>
+
+            <!-- Footer: Info adicional -->
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.04in; border-top: 1px solid #e5e7eb;">
+                <div style="font-size: 7px; color: #64748b;">
+                    <div style="font-weight: 600; margin-bottom: 0.01in;">📅 Válido: <span style="color: #0f172a;">{{
+                            voucher.expiration_mode_display }}</span></div>
+                </div>
+                <div
+                    style="font-size: 6px; color: #94a3b8; text-align: right; max-width: 1in; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    🌐 {{ hotspot_dns }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

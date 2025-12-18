@@ -16,7 +16,26 @@ PRICES_FILE = os.path.join(BASE_DIR, 'prices.json')
 EXPIRATION_SCRIPTS_FILE = os.path.join(BASE_DIR, 'expiration_scripts.json')
 APP_DATA_FOLDER = os.path.join(BASE_DIR, 'app_data')
 VOUCHER_TEMPLATE_FILE = os.path.join(APP_DATA_FOLDER, 'voucher_template.html') 
-LOGO_FILE = os.path.join(APP_DATA_FOLDER, 'logo.png') 
+LOGO_FILE = os.path.join(APP_DATA_FOLDER, 'logo.png')
+
+# Plantillas de vouchers disponibles
+VOUCHER_TEMPLATES = {
+    'standard': {
+        'name': 'Con Logo',
+        'description': 'Diseño elegante con logo',
+        'file': os.path.join(APP_DATA_FOLDER, 'voucher_template_standard.html')
+    },
+    'compact': {
+        'name': 'Sin Logo',
+        'description': 'Diseño simple sin logo',
+        'file': os.path.join(APP_DATA_FOLDER, 'voucher_template_compact.html')
+    },
+    'minimal': {
+        'name': 'Térmica',
+        'description': 'Diseño compacto para impresoras térmicas',
+        'file': os.path.join(APP_DATA_FOLDER, 'voucher_template_minimal.html')
+    }
+} 
 
 # --- "LIBRERÍA" DE SCRIPTS DE EXPIRACIÓN PREDEFINIDOS (Constante global) ---
 SCRIPTS_DE_EXPIRACION = {
