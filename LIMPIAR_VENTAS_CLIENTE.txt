@@ -1,0 +1,131 @@
+========================================
+  LIMPIAR VENTAS DE PRUEBA
+  Instrucciones para el Cliente
+========================================
+
+PROBLEMA RESUELTO:
+========================================
+❌ ANTES: Error al ejecutar python clear_sales.py
+   "ModuleNotFoundError: No module named 'flask_sqlalchemy'"
+
+✅ AHORA: Usa clear_sales.bat (activa entorno automáticamente)
+
+SOLUCIÓN RÁPIDA:
+========================================
+
+1. Actualiza la aplicación:
+   - Doble click en: update.bat
+   - Espera 1-2 minutos
+
+2. Limpia las ventas de prueba:
+   - Doble click en: clear_sales.bat
+   - Selecciona opción 1 (Router específico)
+   - Selecciona tu router
+   - Confirma con 'si'
+   - ¡Listo!
+
+PASOS DETALLADOS:
+========================================
+
+PASO 1: ACTUALIZAR LA APLICACIÓN
+---------------------------------
+Primero necesitas actualizar para obtener clear_sales.bat
+
+Opción A (Recomendada):
+1. Abre la carpeta: HOTSPOT-APP-V2
+2. Doble click en: update.bat
+3. Espera 1-2 minutos
+4. Verás: "¡Actualización completada!"
+
+Opción B (Git Bash):
+1. Abre Git Bash
+2. cd /c/Users/TuUsuario/Desktop/HOTSPOT-APP-V2
+3. git pull origin feature/responsive-sidebar
+
+PASO 2: LIMPIAR VENTAS
+-----------------------
+Ahora que tienes clear_sales.bat:
+
+1. Abre la carpeta: HOTSPOT-APP-V2
+2. Doble click en: clear_sales.bat
+3. Verás el menú:
+
+   ============================================
+   📊 VENTAS POR ROUTER
+   ============================================
+
+   🟢 Activo Router: Tu Router
+      IP: 192.168.88.1
+      Ventas: 150
+
+   OPCIONES:
+   1. Eliminar ventas de un router específico
+   2. Eliminar TODAS las ventas
+   3. Eliminar ventas sin router (legacy)
+   4. Salir
+
+4. Escribe: 1 (para router específico)
+5. Escribe: 1 (número de tu router)
+6. Confirma: si
+7. ¡Listo! Ventas eliminadas
+
+VERIFICAR:
+========================================
+
+Después de limpiar:
+
+1. Doble click en: run.bat
+2. Abre navegador: http://localhost:5000
+3. Ve a: Reportes
+4. Verifica: Ventas en $0
+
+QUÉ SE MANTIENE:
+========================================
+
+Al limpiar ventas, NO se pierden:
+✅ Usuarios de login
+✅ Routers configurados
+✅ Configuración (config.ini)
+✅ Precios
+✅ Plantillas
+
+Solo se eliminan:
+❌ Ventas seleccionadas
+
+SOLUCIÓN DE PROBLEMAS:
+========================================
+
+Error: "No se encontró clear_sales.bat"
+→ Actualiza primero con update.bat
+→ El archivo se descargará con la actualización
+
+Error: "No se encontró el entorno virtual"
+→ Ejecuta install.bat primero
+→ Esto creará el entorno virtual
+
+Error al limpiar ventas:
+→ Cierra la aplicación (Ctrl+C en run.bat)
+→ Ejecuta clear_sales.bat de nuevo
+
+RESUMEN RÁPIDO:
+========================================
+
+1. update.bat (actualizar)
+2. clear_sales.bat (limpiar ventas)
+3. Opción 1 → Tu router → 'si'
+4. run.bat (ejecutar app)
+5. Verificar en Reportes
+
+CONTACTO:
+========================================
+
+Si tienes problemas:
+1. Toma captura de pantalla
+2. Contacta al soporte
+3. Envía la captura
+
+========================================
+Versión: 2.1.0
+Fecha: 17 de Diciembre 2025
+Actualización: clear_sales.bat agregado
+========================================
