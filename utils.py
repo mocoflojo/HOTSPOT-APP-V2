@@ -1,11 +1,20 @@
 import json
 import os
 import re
+import sys
+
+# Obtener el directorio base (donde está el ejecutable o el script)
+if getattr(sys, 'frozen', False):
+    # Si está compilado con PyInstaller
+    BASE_DIR = os.path.dirname(sys.executable)
+else:
+    # Si se ejecuta como script Python
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # --- RUTAS DE ARCHIVOS CONFIGURABLES (Centralizadas aquí) ---
-PRICES_FILE = 'prices.json'
-EXPIRATION_SCRIPTS_FILE = 'expiration_scripts.json'
-APP_DATA_FOLDER = 'app_data' 
+PRICES_FILE = os.path.join(BASE_DIR, 'prices.json')
+EXPIRATION_SCRIPTS_FILE = os.path.join(BASE_DIR, 'expiration_scripts.json')
+APP_DATA_FOLDER = os.path.join(BASE_DIR, 'app_data')
 VOUCHER_TEMPLATE_FILE = os.path.join(APP_DATA_FOLDER, 'voucher_template.html') 
 LOGO_FILE = os.path.join(APP_DATA_FOLDER, 'logo.png') 
 

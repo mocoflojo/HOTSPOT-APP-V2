@@ -1,9 +1,61 @@
 """
-Script para limpiar ventas de la base de datos
+Script standalone para limpiar ventas de la base de datos
+Versión compilada - NO requiere Python
 Soporta multi-router: puede limpiar ventas de un router específico o todos
 """
-from app import app
-from database import db, Sale, User, Router
+import os
+import sys
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+
+# Configurar la aplicación Flask standalone
+app = Flask(__name__)
+
+# Obtener el directorio donde está el ejecutable
+if getattr(sys, 'frozen', False):
+    # Si está compilado con PyInstaller
+    base_dir = os.path.dirname(sys.executable)
+else:
+    # Si se ejecuta como script Python
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Configurar la base de datos
+db_path = os.path.join(base_dir, 'instance', 'users.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Inicializar SQLAlchemy
+db = SQLAlchemy(app)
+
+# Definir modelos (solo los necesarios)
+class Router(db.Model):
+    __tablename__ = 'router'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    ip = db.Column(db.String(50), nullable=False)
+    is_active = db.Column(db.Boolean, default=True)
+
+class Sale(db.Model):
+    __tablename__ = 'sale'
+    id = db.Column(db.Integer, primary_key=True)
+    router_id = db.Column(db.Integer, db.ForeignKey('router.id'), nullable=True)
+
+class User(db.Model):
+    __tablename__ = 'user'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), unique=True, nullable=False)
+
+def check_database():
+    """Verifica que la base de datos exista"""
+    if not os.path.exists(db_path):
+        print(f"\n❌ ERROR: No se encontró la base de datos")
+        print(f"   Ubicación esperada: {db_path}")
+        print(f"\n💡 SOLUCIÓN:")
+        print(f"   1. Ejecuta HOTSPOT-APP.exe primero")
+        print(f"   2. Haz login (esto crea la base de datos)")
+        print(f"   3. Luego vuelve a ejecutar este script\n")
+        input("Presiona Enter para salir...")
+        sys.exit(1)
 
 def show_sales_by_router():
     """Muestra el conteo de ventas por router"""
@@ -187,5 +239,16 @@ if __name__ == "__main__":
     print("\n" + "="*60)
     print("🗑️  LIMPIADOR DE VENTAS - HOTSPOT-APP V2.1")
     print("="*60)
+    print(f"📁 Directorio de trabajo: {base_dir}")
+    print(f"💾 Base de datos: {db_path}")
     
-    interactive_menu()
+    # Verificar que existe la base de datos
+    check_database()
+    
+    try:
+        interactive_menu()
+    except KeyboardInterrupt:
+        print("\n\n👋 Operación cancelada por el usuario.\n")
+    except Exception as e:
+        print(f"\n❌ Error inesperado: {e}\n")
+        input("Presiona Enter para salir...")

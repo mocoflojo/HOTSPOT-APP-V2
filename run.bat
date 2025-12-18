@@ -57,8 +57,8 @@ echo Presiona Ctrl+C para detener el servidor
 echo ========================================
 echo.
 
-REM Abrir el navegador despues de un breve delay (en segundo plano)
-start "" cmd /c "timeout /t 3 /nobreak >nul && start http://localhost:5000"
+REM Abrir el navegador después de un breve delay (solo una vez)
+start /min cmd /c "timeout /t 2 /nobreak >nul && start http://localhost:5000"
 
 REM Ejecutar la aplicacion
 python app.py

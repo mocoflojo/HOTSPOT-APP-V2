@@ -141,7 +141,50 @@ def index():
     return redirect(url_for('main.dashboard')) 
 
 if __name__ == '__main__':
+    import sys
+    
     with app.app_context():
         if not os.path.exists('users.db'):
-            db.create_all() 
-    app.run(debug=True, host='0.0.0.0', port=5000)
+            db.create_all()
+    
+    # Solo abrir navegador si está compilado (ejecutable)
+    if getattr(sys, 'frozen', False):
+        import webbrowser
+        import threading
+        
+        def open_browser():
+            """Abre el navegador después de 2 segundos"""
+            import time
+            time.sleep(2)
+            webbrowser.open('http://localhost:5000')
+        
+        # Abrir navegador en un thread separado
+        threading.Thread(target=open_browser, daemon=True).start()
+        
+        print("\n" + "="*60)
+        print("🚀 HOTSPOT-APP V2.1 - Servidor Iniciado")
+        print("="*60)
+        print("📱 Abriendo navegador automáticamente...")
+        print("🌐 URL: http://localhost:5000")
+        print("💡 Presiona Ctrl+C para detener el servidor")
+        print("="*60 + "\n")
+        
+        # Usar servidor de producción Waitress
+        try:
+            from waitress import serve
+            print("✅ Usando servidor de producción (Waitress)")
+            serve(app, host='0.0.0.0', port=5000, threads=4)
+        except ImportError:
+            print("⚠️  Waitress no disponible, usando servidor de desarrollo")
+            app.run(debug=False, host='0.0.0.0', port=5000, use_reloader=False)
+    else:
+        # Si se ejecuta como script Python (con run.bat)
+        print("\n" + "="*60)
+        print("🚀 HOTSPOT-APP V2.1 - Servidor de Desarrollo")
+        print("="*60)
+        print("🌐 URL: http://localhost:5000")
+        print("💡 Presiona Ctrl+C para detener el servidor")
+        print("="*60 + "\n")
+        
+        # use_reloader=False evita que abra múltiples pestañas en cada cambio
+        app.run(debug=True, host='0.0.0.0', port=5000, use_reloader=False)

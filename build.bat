@@ -45,7 +45,7 @@ echo [OK] Limpieza completada
 echo.
 
 REM Compilar con PyInstaller
-echo [4/6] Compilando aplicación...
+echo [4/7] Compilando aplicación principal...
 echo Este proceso puede tomar 10-15 minutos...
 echo.
 echo NOTA: Usando modo --onedir para permitir archivos de configuración externos
@@ -63,30 +63,69 @@ pyinstaller --name=HOTSPOT-APP ^
     --hidden-import=werkzeug ^
     --hidden-import=jinja2 ^
     --hidden-import=sqlalchemy ^
+    --hidden-import=waitress ^
     app.py
 
 if %errorlevel% neq 0 (
     echo.
-    echo [ERROR] La compilación falló
+    echo [ERROR] La compilación de la app principal falló
     pause
     exit /b 1
 )
 
 echo.
-echo [OK] Compilación completada
+echo [OK] Aplicación principal compilada
+echo.
+
+REM Compilar scripts de utilidad
+echo [5/7] Compilando scripts de utilidad...
+echo.
+
+echo Compilando clear_sales.exe...
+pyinstaller --name=clear_sales ^
+    --onefile ^
+    --console ^
+    --hidden-import=flask_sqlalchemy ^
+    --hidden-import=sqlalchemy ^
+    clear_sales.py
+
+if %errorlevel% neq 0 (
+    echo [ADVERTENCIA] No se pudo compilar clear_sales.exe
+)
+
+echo.
+echo Compilando check_sales.exe...
+pyinstaller --name=check_sales ^
+    --onefile ^
+    --console ^
+    --hidden-import=flask_sqlalchemy ^
+    --hidden-import=sqlalchemy ^
+    check_sales.py
+
+if %errorlevel% neq 0 (
+    echo [ADVERTENCIA] No se pudo compilar check_sales.exe
+)
+
+echo.
+echo [OK] Scripts de utilidad compilados
 echo.
 
 REM Crear carpeta de distribución
-echo [5/6] Creando paquete de distribución...
+echo [6/7] Creando paquete de distribución...
 mkdir dist-package
-xcopy /E /I dist\\HOTSPOT-APP dist-package\\HOTSPOT-APP
+xcopy /E /I dist\HOTSPOT-APP dist-package\HOTSPOT-APP
 
 REM Copiar archivos de configuración EXTERNOS (editables por el cliente)
 echo Copiando archivos de configuración externos...
-copy config.ini dist-package\\HOTSPOT-APP\
-copy prices.json dist-package\\HOTSPOT-APP\
-xcopy /E /I app_data dist-package\\HOTSPOT-APP\\app_data\
-copy README.md dist-package\\HOTSPOT-APP\
+copy config.ini dist-package\HOTSPOT-APP\
+copy prices.json dist-package\HOTSPOT-APP\
+xcopy /E /I app_data dist-package\HOTSPOT-APP\app_data\
+copy README.md dist-package\HOTSPOT-APP\
+
+REM Copiar scripts de utilidad para el cliente (como ejecutables)
+echo Copiando scripts de utilidad...
+copy dist\clear_sales.exe dist-package\HOTSPOT-APP\ 2>nul
+copy dist\check_sales.exe dist-package\HOTSPOT-APP\ 2>nul
 
 REM Crear README para el cliente
 (
@@ -121,6 +160,21 @@ REM Crear README para el cliente
     echo - Sigue las instrucciones en pantalla
     echo.
     echo ========================================
+    echo  Scripts de Utilidad
+    echo ========================================
+    echo.
+    echo LIMPIAR VENTAS DE PRUEBA:
+    echo - Ejecutar: clear_sales.exe
+    echo - Permite eliminar ventas de prueba o resetear el sistema
+    echo - PRECAUCIÓN: Esta acción no se puede deshacer
+    echo - NO requiere Python instalado
+    echo.
+    echo VERIFICAR VENTAS:
+    echo - Ejecutar: check_sales.exe
+    echo - Muestra un resumen de las ventas registradas
+    echo - NO requiere Python instalado
+    echo.
+    echo ========================================
     echo  Soporte
     echo ========================================
     echo.
@@ -132,7 +186,7 @@ echo [OK] Paquete creado
 echo.
 
 REM Mostrar información
-echo [6/6] Generando información del paquete...
+echo [7/7] Generando información del paquete...
 echo.
 echo ========================================
 echo  EMPAQUETADO COMPLETADO!
