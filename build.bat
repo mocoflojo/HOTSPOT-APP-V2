@@ -48,14 +48,13 @@ REM Compilar con PyInstaller
 echo [4/6] Compilando aplicación...
 echo Este proceso puede tomar 10-15 minutos...
 echo.
+echo NOTA: Usando modo --onedir para permitir archivos de configuración externos
+echo.
 
 pyinstaller --name=HOTSPOT-APP ^
-    --onefile ^
+    --onedir ^
     --console ^
     --add-data "templates;templates" ^
-    --add-data "app_data;app_data" ^
-    --add-data "config.ini;." ^
-    --add-data "prices.json;." ^
     --add-data "expiration_scripts.json;." ^
     --hidden-import=flask ^
     --hidden-import=flask_login ^
@@ -80,8 +79,14 @@ echo.
 REM Crear carpeta de distribución
 echo [5/6] Creando paquete de distribución...
 mkdir dist-package
-copy dist\HOTSPOT-APP.exe dist-package\
-copy README.md dist-package\
+xcopy /E /I dist\\HOTSPOT-APP dist-package\\HOTSPOT-APP
+
+REM Copiar archivos de configuración EXTERNOS (editables por el cliente)
+echo Copiando archivos de configuración externos...
+copy config.ini dist-package\\HOTSPOT-APP\
+copy prices.json dist-package\\HOTSPOT-APP\
+xcopy /E /I app_data dist-package\\HOTSPOT-APP\\app_data\
+copy README.md dist-package\\HOTSPOT-APP\
 
 REM Crear README para el cliente
 (
@@ -89,9 +94,23 @@ REM Crear README para el cliente
     echo  HOTSPOT-APP V2.1 - Guía Rápida
     echo ========================================
     echo.
+    echo COMO EJECUTAR:
     echo 1. Ejecutar: HOTSPOT-APP.exe
     echo 2. La aplicación se abrirá en tu navegador
     echo 3. Login con las credenciales que configuraste
+    echo.
+    echo ========================================
+    echo  Archivos de Configuración
+    echo ========================================
+    echo.
+    echo Puedes editar estos archivos según tus necesidades:
+    echo - config.ini: Configuración de RouterOS y base de datos
+    echo - prices.json: Precios de los planes de internet
+    echo - app_data\voucher_template.html: Plantilla de vouchers
+    echo - app_data\logo.png: Logo de tu empresa
+    echo.
+    echo IMPORTANTE: Después de editar config.ini o prices.json,
+    echo reinicia la aplicación para que los cambios tomen efecto.
     echo.
     echo ========================================
     echo  Primer Uso
@@ -107,7 +126,7 @@ REM Crear README para el cliente
     echo.
     echo Para más información, consulta README.md
     echo.
-) > dist-package\INSTRUCCIONES.txt
+) > dist-package\HOTSPOT-APP\INSTRUCCIONES.txt
 
 echo [OK] Paquete creado
 echo.
@@ -119,23 +138,33 @@ echo ========================================
 echo  EMPAQUETADO COMPLETADO!
 echo ========================================
 echo.
-echo Ubicación: dist-package\
+echo Ubicación: dist-package\HOTSPOT-APP\
 echo Archivo principal: HOTSPOT-APP.exe
-echo Tamaño aproximado: ~80 MB
+echo Tamaño aproximado: ~150 MB
+echo.
+echo ========================================
+echo  Archivos Editables por el Cliente
+echo ========================================
+echo.
+echo - config.ini (Configuración de RouterOS y DB)
+echo - prices.json (Precios de planes)
+echo - app_data\voucher_template.html (Plantilla de vouchers)
+echo - app_data\logo.png (Logo de la empresa)
 echo.
 echo ========================================
 echo  Para Distribuir al Cliente
 echo ========================================
 echo.
-echo 1. Comprimir la carpeta dist-package\ a ZIP
+echo 1. Comprimir la carpeta dist-package\HOTSPOT-APP\ a ZIP
 echo 2. Enviar al cliente
-echo 3. Cliente descomprime y ejecuta HOTSPOT-APP.exe
+echo 3. Cliente descomprime
+echo 4. Cliente ejecuta HOTSPOT-APP.exe
 echo.
 echo ========================================
 echo  Archivos en el Paquete
 echo ========================================
 echo.
-dir /B dist-package
+dir /B dist-package\HOTSPOT-APP
 echo.
 echo ========================================
 echo.

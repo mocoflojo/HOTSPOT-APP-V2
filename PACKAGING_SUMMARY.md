@@ -13,6 +13,8 @@
 - Cliente solo ejecuta `HOTSPOT-APP.exe`
 - Tiempo: 15 minutos para preparar (primera vez)
 - Requiere: NADA en el cliente (todo incluido)
+- **✅ NUEVO:** Archivos de configuración editables (config.ini, prices.json, logo, templates)
+
 
 ---
 
@@ -41,11 +43,24 @@ build.bat
 ### Paso 3: Distribuir al Cliente
 
 ```
-1. Comprimir carpeta: dist-package\
+1. Comprimir carpeta: dist-package\HOTSPOT-APP\
 2. Enviar ZIP al cliente
 3. Cliente descomprime
-4. Cliente ejecuta: HOTSPOT-APP.exe
+4. Cliente edita config.ini (primera vez)
+5. Cliente ejecuta: HOTSPOT-APP.exe
 ```
+
+### 📁 Archivos Editables por el Cliente
+
+El cliente puede personalizar estos archivos sin recompilar:
+
+- **config.ini** - Configuración de RouterOS (IP, usuario, contraseña)
+- **prices.json** - Precios de los planes
+- **app_data/voucher_template.html** - Plantilla de vouchers
+- **app_data/logo.png** - Logo de la empresa
+
+**Importante:** Reiniciar la aplicación después de editar.
+
 
 ---
 

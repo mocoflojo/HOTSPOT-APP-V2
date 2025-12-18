@@ -32,6 +32,10 @@ MANIFEST
 *.manifest
 *.spec
 
+# PyInstaller - Carpetas de empaquetado (generadas por build.bat)
+dist-package/
+TEST-DEPLOYMENT/
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt

@@ -67,4 +67,4 @@ def init_db(app):
     """
     db.init_app(app)
     login_manager.init_app(app)
-    login_manager.login_view = 'login' # Vista a la que redirigir si no está logueado
+    login_manager.login_view = 'auth.login' # Vista a la que redirigir si no está logueado (blueprint.endpoint)
