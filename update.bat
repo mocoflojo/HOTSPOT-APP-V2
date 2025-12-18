@@ -48,14 +48,20 @@ echo [OK] Cambios guardados
 echo.
 
 echo [3/6] Descargando actualizaciones...
-git pull origin main
+REM Detectar rama actual
+for /f "tokens=*" %%i in ('git rev-parse --abbrev-ref HEAD') do set CURRENT_BRANCH=%%i
+echo [INFO] Rama actual: %CURRENT_BRANCH%
+git pull origin %CURRENT_BRANCH%
 if %errorlevel% neq 0 (
     echo [ERROR] No se pudo descargar la actualización
     echo.
     echo Posibles causas:
     echo - No hay conexión a internet
     echo - Conflictos con archivos locales
-    echo - Rama incorrecta
+    echo - Rama incorrecta: %CURRENT_BRANCH%
+    echo.
+    echo Intenta manualmente:
+    echo   git pull origin %CURRENT_BRANCH%
     echo.
     pause
     exit /b 1
