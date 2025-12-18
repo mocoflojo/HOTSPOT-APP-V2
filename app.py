@@ -162,7 +162,7 @@ if __name__ == '__main__':
         threading.Thread(target=open_browser, daemon=True).start()
         
         print("\n" + "="*60)
-        print("🚀 HOTSPOT-APP V2.1 - Servidor Iniciado")
+        print("🚀 HotSpot Pro - Servidor Iniciado")
         print("="*60)
         print("📱 Abriendo navegador automáticamente...")
         print("🌐 URL: http://localhost:5000")
@@ -178,9 +178,8 @@ if __name__ == '__main__':
             print("⚠️  Waitress no disponible, usando servidor de desarrollo")
             app.run(debug=False, host='0.0.0.0', port=5000, use_reloader=False)
     else:
-        # Si se ejecuta como script Python (con run.bat)
         print("\n" + "="*60)
-        print("🚀 HOTSPOT-APP V2.1 - Servidor de Desarrollo")
+        print("🚀 HotSpot Pro - Servidor de Desarrollo")
         print("="*60)
         print("🌐 URL: http://localhost:5000")
         print("💡 Presiona Ctrl+C para detener el servidor")

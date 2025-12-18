@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Mi Gestor WISP{% endblock %}</title>
+    <title>{% block title %}HotSpot Pro{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -82,10 +82,14 @@
         <div class="sidebar bg-white text-gray-800 shadow-lg fixed h-full z-10 w-64" id="sidebar">
             <div class="p-4 flex items-center justify-between border-b border-gray-200">
                 <div class="flex items-center">
-                    <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white">
-                        <i class="fas fa-wifi text-xl"></i>
+                    <div
+                        class="w-10 h-10 rounded-full overflow-hidden bg-blue-500 flex items-center justify-center text-white">
+                        <img src="/app_data/sidebar_logo.png?v={{ range(1, 10000) | random }}" alt="Logo"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                            style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                        <i class="fas fa-wifi text-xl" style="display: none;"></i>
                     </div>
-                    <span class="logo-text ml-3 font-bold text-lg">Mi Gestor</span>
+                    <span class="logo-text ml-3 font-bold text-lg">HotSpot Pro</span>
                 </div>
                 <!-- Botón cerrar (solo visible en móvil) -->
                 <button onclick="toggleSidebar()" class="md:hidden text-gray-600 hover:text-gray-900">
@@ -149,6 +153,10 @@
                     <a href="{{ url_for('routers.list_routers') }}"
                         class="nav-item flex items-center py-3 px-4 rounded-lg hover:bg-gray-100 mt-1 {% if active_page == 'routers' %}bg-blue-50 text-blue-600{% endif %}">
                         <i class="fas fa-server"></i><span class="nav-text ml-3">Gestión de Routers</span>
+                    </a>
+                    <a href="{{ url_for('main.settings') }}"
+                        class="nav-item flex items-center py-3 px-4 rounded-lg hover:bg-gray-100 mt-1 {% if active_page == 'settings' %}bg-blue-50 text-blue-600{% endif %}">
+                        <i class="fas fa-cog"></i><span class="nav-text ml-3">Configuración</span>
                     </a>
                     {% block extra_nav_items %}{% endblock %}
                     {% else %}

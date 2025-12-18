@@ -16,7 +16,7 @@ from utils import ( # Importar de utils.py
     save_custom_expiration_scripts, get_all_expiration_scripts,
     format_uptime_display, allowed_file, SCRIPTS_DE_EXPIRACION,
     APP_DATA_FOLDER, PRICES_FILE, EXPIRATION_SCRIPTS_FILE, VOUCHER_TEMPLATE_FILE, LOGO_FILE,
-    VOUCHER_TEMPLATES  # NUEVO: Plantillas de vouchers
+    VOUCHER_TEMPLATES, SIDEBAR_LOGO_FILE  # NUEVO: Logo del sidebar
 )
 
 import sys
@@ -1021,6 +1021,43 @@ def upload_logo():
     else:
         flash('Tipo de archivo no permitido. Solo PNG, JPG, JPEG, GIF.', "warning")
         return redirect(url_for('main.voucher_template_editor'))
+
+
+@main_bp.route('/settings')
+@login_required
+def settings():
+    """Página de configuración de la aplicación"""
+    return render_template('settings.html', active_page='settings')
+
+
+@main_bp.route('/upload_sidebar_logo', methods=['POST'])
+@login_required
+def upload_sidebar_logo():
+    """Subir logo del sidebar"""
+    if 'sidebar_logo_file' not in request.files:
+        flash('No se seleccionó ningún archivo.', "warning")
+        return redirect(url_for('main.settings'))
+
+    file = request.files['sidebar_logo_file']
+
+    if file.filename == '':
+        flash('No se seleccionó ningún archivo.', "warning")
+        return redirect(url_for('main.settings'))
+
+    if file and allowed_file(file.filename):
+        try:
+            filename = 'sidebar_logo.png'
+            if not os.path.exists(APP_DATA_FOLDER):
+                os.makedirs(APP_DATA_FOLDER)
+            file.save(os.path.join(APP_DATA_FOLDER, filename))
+            flash('Logo del sidebar subido exitosamente.', "success")
+            return redirect(url_for('main.settings'))
+        except Exception as e:
+            flash(f'Error al subir el logo: {e}', "danger")
+            return redirect(url_for('main.settings'))
+    else:
+        flash('Tipo de archivo no permitido. Solo PNG, JPG, JPEG, GIF.', "warning")
+        return redirect(url_for('main.settings'))
 
 
 

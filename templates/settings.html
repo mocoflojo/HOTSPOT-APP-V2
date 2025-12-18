@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Configuración{% endblock %}
+
+{% block page_title %}Configuración de la Aplicación{% endblock %}
+
+{% block content %}
+<div class="card bg-white rounded-lg p-6 mb-8">
+    <h2 class="text-lg font-semibold mb-4 text-blue-600">🎨 Personalización</h2>
+
+    <!-- Logo del Sidebar -->
+    <div class="mb-8">
+        <h3 class="text-md font-semibold mb-3 text-gray-800">Logo del Menú Lateral</h3>
+        <p class="mb-4 text-gray-700 text-sm">Personaliza el logo que aparece en el menú lateral izquierdo ("Mi
+            Gestor").</p>
+
+        <!-- Vista previa del logo actual -->
+        <div class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <p class="text-sm font-medium text-gray-700 mb-2">Vista Previa Actual:</p>
+            <div class="flex items-center">
+                <div
+                    class="w-12 h-12 rounded-full overflow-hidden bg-white border-2 border-gray-300 flex items-center justify-center">
+                    <img src="/app_data/sidebar_logo.png?{{ range(1, 10000) | random }}" alt="Logo Sidebar"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                        style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                    <div style="display: none;"
+                        class="w-full h-full bg-blue-500 flex items-center justify-center text-white">
+                        <i class="fas fa-wifi text-xl"></i>
+                    </div>
+                </div>
+                <span class="ml-3 text-sm text-gray-600">Logo actual del sidebar</span>
+            </div>
+        </div>
+
+        <!-- Formulario para subir logo -->
+        <form method="POST" action="{{ url_for('main.upload_sidebar_logo') }}" enctype="multipart/form-data"
+            class="space-y-4">
+            <div>
+                <label for="sidebar_logo_file" class="block text-sm font-medium text-gray-700 mb-2">
+                    Seleccionar nuevo logo:
+                </label>
+                <input type="file" name="sidebar_logo_file" id="sidebar_logo_file"
+                    accept="image/png, image/jpeg, image/jpg, image/gif"
+                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none">
+                <p class="mt-2 text-xs text-gray-500">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Recomendado: Imagen cuadrada, PNG con fondo transparente, 200x200px o mayor.
+                </p>
+            </div>
+            <div>
+                <button type="submit"
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                    <i class="fas fa-upload mr-2"></i>Subir Logo del Sidebar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <hr class="my-8 border-gray-200">
+
+    <!-- Información adicional -->
+    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-lightbulb text-blue-500 text-xl"></i>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">Consejos para el logo</h3>
+                <div class="mt-2 text-sm text-blue-700">
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Usa formato PNG para mejor calidad y transparencia</li>
+                        <li>El logo se mostrará en un círculo de 40x40 píxeles</li>
+                        <li>Asegúrate de que el logo sea visible en tamaño pequeño</li>
+                        <li>Si no subes un logo, se mostrará el icono WiFi por defecto</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

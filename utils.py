@@ -17,6 +17,7 @@ EXPIRATION_SCRIPTS_FILE = os.path.join(BASE_DIR, 'expiration_scripts.json')
 APP_DATA_FOLDER = os.path.join(BASE_DIR, 'app_data')
 VOUCHER_TEMPLATE_FILE = os.path.join(APP_DATA_FOLDER, 'voucher_template.html') 
 LOGO_FILE = os.path.join(APP_DATA_FOLDER, 'logo.png')
+SIDEBAR_LOGO_FILE = os.path.join(APP_DATA_FOLDER, 'sidebar_logo.png')
 
 # Plantillas de vouchers disponibles
 VOUCHER_TEMPLATES = {

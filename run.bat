@@ -1,11 +1,11 @@
 @echo off
 REM ========================================
-REM Script para Ejecutar HOTSPOT-APP V2
+REM Script para Ejecutar HotSpot Pro
 REM ========================================
 
 echo.
 echo ========================================
-echo  Iniciando HOTSPOT-APP V2...
+echo  Iniciando HotSpot Pro...
 echo ========================================
 echo.
 

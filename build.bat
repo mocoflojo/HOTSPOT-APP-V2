@@ -145,8 +145,9 @@ REM Crear README para el cliente
     echo Puedes editar estos archivos según tus necesidades:
     echo - config.ini: Configuración de RouterOS y base de datos
     echo - prices.json: Precios de los planes de internet
-    echo - app_data\voucher_template.html: Plantilla de vouchers
-    echo - app_data\logo.png: Logo de tu empresa
+    echo - app_data\voucher_template_*.html: Plantillas de vouchers (3 diseños)
+    echo - app_data\logo.png: Logo para vouchers
+    echo - app_data\sidebar_logo.png: Logo del menú lateral
     echo.
     echo IMPORTANTE: Después de editar config.ini o prices.json,
     echo reinicia la aplicación para que los cambios tomen efecto.
@@ -202,8 +203,9 @@ echo ========================================
 echo.
 echo - config.ini (Configuración de RouterOS y DB)
 echo - prices.json (Precios de planes)
-echo - app_data\voucher_template.html (Plantilla de vouchers)
-echo - app_data\logo.png (Logo de la empresa)
+echo - app_data\voucher_template_*.html (3 Plantillas editables)
+echo - app_data\logo.png (Logo para vouchers)
+echo - app_data\sidebar_logo.png (Logo del menú)
 echo.
 echo ========================================
 echo  Para Distribuir al Cliente

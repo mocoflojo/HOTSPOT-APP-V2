@@ -1,41 +1,46 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión - Mi Gestor WISP</title>
+    <title>Iniciar Sesión - HotSpot Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            background-color: #f3f4f6; /* bg-gray-100 */
+            background-color: #f3f4f6;
+            /* bg-gray-100 */
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
         }
+
         .login-card {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
     </style>
 </head>
+
 <body>
     <div class="login-card bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         <div class="flex items-center justify-center mb-6">
             <div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white text-2xl">
                 <i class="fas fa-wifi"></i>
             </div>
-            <h1 class="ml-4 text-3xl font-semibold text-gray-800">Mi Gestor</h1>
+            <h1 class="ml-4 text-3xl font-semibold text-gray-800">HotSpot Pro</h1>
         </div>
         <h2 class="text-xl font-bold text-gray-700 text-center mb-6">Acceder al Panel de Control</h2>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            {% for category, message in messages %}
-            <div class="alert alert-{{ category }} {% if category == 'danger' %}bg-red-100 text-red-700 border-red-400{% elif category == 'success' %}bg-green-100 text-green-700 border-green-400{% elif category == 'info' %}bg-blue-100 text-blue-700 border-blue-400{% elif category == 'warning' %}bg-yellow-100 text-yellow-700 border-yellow-400{% endif %} px-4 py-3 rounded-md mb-4 border" role="alert">
-                {{ message }}
-            </div>
-            {% endfor %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} {% if category == 'danger' %}bg-red-100 text-red-700 border-red-400{% elif category == 'success' %}bg-green-100 text-green-700 border-green-400{% elif category == 'info' %}bg-blue-100 text-blue-700 border-blue-400{% elif category == 'warning' %}bg-yellow-100 text-yellow-700 border-yellow-400{% endif %} px-4 py-3 rounded-md mb-4 border"
+            role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
         {% endif %}
         {% endwith %}
 
@@ -43,27 +48,29 @@
             <div>
                 <label for="username" class="block text-sm font-medium text-gray-700">Usuario</label>
                 <input type="text" name="username" id="username" required
-                       class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
             </div>
             <div>
                 <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
                 <input type="password" name="password" id="password" required
-                       class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
             </div>
             <div>
                 <button type="submit"
-                        class="w-full flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    class="w-full flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                     <i class="fas fa-sign-in-alt mr-2"></i> Iniciar Sesión
                 </button>
             </div>
         </form>
-        
+
         {# Mostrar el enlace para configurar el usuario solo si no hay usuarios en la DB #}
         {% if not users_exist %}
         <p class="text-center text-sm text-gray-600 mt-6">
-            ¿Primera vez aquí? <a href="{{ url_for('auth.setup_initial_user') }}" class="text-blue-600 hover:text-blue-800 font-semibold">Configurar usuario administrador</a>
+            ¿Primera vez aquí? <a href="{{ url_for('auth.setup_initial_user') }}"
+                class="text-blue-600 hover:text-blue-800 font-semibold">Configurar usuario administrador</a>
         </p>
         {% endif %}
     </div>
 </body>
+
 </html>
