@@ -144,10 +144,7 @@ def dashboard():
         flash("No hay router activo. Por favor, configura un router primero.", "danger")
         return redirect(url_for('routers.list_routers'))
     
-    # Registrar ventas de usuarios activos
-    check_and_record_active_sales()
-
-    # Calcular ventas SOLO DEL ROUTER ACTIVO
+    # Calcular ventas SOLO DEL ROUTER ACTIVO (antes de verificar API)
     now = datetime.now()
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
@@ -164,9 +161,33 @@ def dashboard():
         Sale.router_id == active_router.id
     ).scalar() or 0
 
+    # --- Datos para el Gráfico (Últimos 7 días) - FILTRADO POR ROUTER ---
+    chart_labels = []
+    chart_values = []
+    
+    # Iterar por los últimos 7 días (incluyendo hoy)
+    for i in range(6, -1, -1):
+        date_point = now - timedelta(days=i)
+        start_of_day = date_point.replace(hour=0, minute=0, second=0, microsecond=0)
+        end_of_day = date_point.replace(hour=23, minute=59, second=59, microsecond=999999)
+        
+        daily_total = db.session.query(func.sum(Sale.price)).filter(
+            Sale.date_created >= start_of_day,
+            Sale.date_created <= end_of_day,
+            Sale.router_id == active_router.id
+        ).scalar() or 0
+        
+        chart_labels.append(date_point.strftime("%d/%m"))
+        chart_values.append(float(daily_total))
 
+    # --- Actividad Reciente (Últimas 5 ventas) - FILTRADO POR ROUTER ---
+    recent_sales = Sale.query.filter_by(router_id=active_router.id).order_by(Sale.date_created.desc()).limit(5).all()
 
+    # Registrar ventas de usuarios activos (solo si hay conexión)
     api = get_api_connection()
+    if api:
+        check_and_record_active_sales()
+    
     if not api:
         flash("No se pudo conectar con el router MikroTik. Por favor, verifica la configuración o la conexión.", "danger")
         return render_template('dashboard.html',
@@ -183,7 +204,13 @@ def dashboard():
                                    'memory_total_mb': 'N/A',
                                    'hdd_used_mb': 'N/A',
                                    'hdd_total_mb': 'N/A'
-                               })
+                               },
+                               sales_today=sales_today,
+                               sales_month=sales_month,
+                               chart_labels=chart_labels,
+                               chart_values=chart_values,
+                               recent_sales=recent_sales,
+                               all_profiles=[])
 
     active_users = get_active_hotspot_users()
     all_users = get_hotspot_users()
