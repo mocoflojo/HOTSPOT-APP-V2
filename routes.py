@@ -913,7 +913,7 @@ def print_vouchers():
         return redirect(url_for('main.list_users'))
 
     vouchers_data = []
-    for user in filtered_users:
+    for index, user in enumerate(filtered_users, start=1):
         mode = 'pin' if user.get('name') == user.get('password') else 'userpass'
 
         user_profile_name = user.get('profile')
@@ -932,6 +932,7 @@ def print_vouchers():
         formatted_limit_uptime = format_uptime_display(user.get('limit-uptime', '0s'))
 
         vouchers_data.append({
+            'number': index,  # Número secuencial del voucher
             'username': user.get('name'),
             'password': user.get('password') if mode == 'userpass' else '',
             'limit_uptime_formatted': formatted_limit_uptime,

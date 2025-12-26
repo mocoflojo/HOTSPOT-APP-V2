@@ -78,6 +78,7 @@
                 style="display: none;">{{ current_template_content }}</textarea>
 
             <p class="mt-2 text-xs text-gray-500">Variables disponibles:
+                <code>{% raw %}{{ voucher.number }}{% endraw %}</code>,
                 <code>{% raw %}{{ voucher.username }}{% endraw %}</code>,
                 <code>{% raw %}{{ voucher.password }}{% endraw %}</code>,
                 <code>{% raw %}{{ voucher.limit_uptime_formatted }}{% endraw %}</code>,
